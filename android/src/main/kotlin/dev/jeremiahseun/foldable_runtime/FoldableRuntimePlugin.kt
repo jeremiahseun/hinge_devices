@@ -44,6 +44,7 @@ class FoldableRuntimePlugin :
     private val mainHandler = Handler(Looper.getMainLooper())
 
     private var hingeSensor: HingeSensorSource? = null
+    private var displays: DisplaySource? = null
     private val windowLayout = WindowLayoutSource { _, _, _ -> emitState() }
 
     private var angleUpdatesEnabled = false
@@ -53,6 +54,7 @@ class FoldableRuntimePlugin :
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
         hingeSensor = HingeSensorSource(context) { emitState() }
+        displays = DisplaySource(context)
 
         methodChannel = MethodChannel(binding.binaryMessenger, METHOD_CHANNEL).apply {
             setMethodCallHandler(this@FoldableRuntimePlugin)
@@ -79,10 +81,19 @@ class FoldableRuntimePlugin :
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
         windowLayout.start(binding.activity)
-        if (sink != null) hingeSensor?.start()
+        if (sink != null) hingeSensor?.start(fast = angleUpdatesEnabled)
+        emitState()
     }
 
-    override fun onDetachedFromActivityForConfigChanges() = onDetachedFromActivity()
+    override fun onDetachedFromActivityForConfigChanges() {
+        // Unfolding *is* a configuration change, so this fires at exactly the
+        // moment posture is changing. Only the window-layout observer is torn
+        // down here; the sensor keeps delivering so the state that arrives
+        // after reattach is current rather than the reading from before the
+        // fold.
+        windowLayout.stop()
+        activity = null
+    }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) =
         onAttachedToActivity(binding)
@@ -100,7 +111,9 @@ class FoldableRuntimePlugin :
             "capabilities" -> result.success(capabilities())
             "setAngleUpdatesEnabled" -> {
                 angleUpdatesEnabled = call.argument<Boolean>("enabled") ?: false
-                if (angleUpdatesEnabled) hingeSensor?.start() else hingeSensor?.stop()
+                // Never stops the sensor: posture still needs it to tell a
+                // shut device from an open one. Only the rate changes.
+                if (sink != null) hingeSensor?.start(fast = angleUpdatesEnabled)
                 result.success(null)
             }
             else -> result.notImplemented()
@@ -114,16 +127,14 @@ class FoldableRuntimePlugin :
             "isFoldable" to (hasSensor || hasFeature),
             "hingeAngleSensor" to hasSensor,
             "foldingFeature" to (activity != null),
-            // v0.1 does not probe cover displays; v0.2 adds DisplayManager
-            // inspection. Reported explicitly rather than omitted so callers
-            // can tell "no" from "unknown".
-            "outerDisplay" to false,
+                "outerDisplay" to (displays?.hasOuterDisplay() ?: false),
             "sceneAccessory" to false,
             "rearDisplayTransfer" to false,
             "dualConcurrent" to false,
             "specVersion" to SPEC_VERSION,
             "manufacturer" to Build.MANUFACTURER,
             "model" to Build.MODEL,
+            "hingeEventCount" to (hingeSensor?.eventCount ?: 0),
         )
     }
 
@@ -131,10 +142,11 @@ class FoldableRuntimePlugin :
 
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
         sink = events
-        // The hinge sensor is started even when angle updates are off: it is
-        // the only signal that can distinguish a closed device, which no
-        // folding feature reports. Angle values are still gated in Dart.
-        hingeSensor?.start()
+        // The hinge sensor runs even when angle updates are off: it is the
+        // only signal that can distinguish a shut device, which reports no
+        // folding feature. Angle updates raise its rate, they do not turn it
+        // on.
+        hingeSensor?.start(fast = angleUpdatesEnabled)
         activity?.let(windowLayout::start)
         emitState()
     }
@@ -165,7 +177,7 @@ class FoldableRuntimePlugin :
                 else -> null
             },
             "hingeAngle" to hingeSensor?.lastAngle?.toDouble(),
-            "activeDisplay" to "unknown",
+            "activeDisplay" to (displays?.activeDisplay(activity) ?: "unknown"),
             "windowWidth" to windowWidth / density,
             "windowHeight" to windowHeight / density,
         )

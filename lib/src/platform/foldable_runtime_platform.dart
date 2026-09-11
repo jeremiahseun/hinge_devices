@@ -40,6 +40,7 @@ class FoldableCapabilitiesResult {
     required this.capabilities,
     this.manufacturer,
     this.model,
+    this.diagnostics = const <String, Object?>{},
   });
 
   /// The device's capabilities.
@@ -50,4 +51,9 @@ class FoldableCapabilitiesResult {
 
   /// Device model, for quirk lookup.
   final String? model;
+
+  /// Non-capability platform values useful when diagnosing a device — sensor
+  /// event counts, vendor identifiers. Contents are platform-specific and not
+  /// part of the stable API.
+  final Map<String, Object?> diagnostics;
 }

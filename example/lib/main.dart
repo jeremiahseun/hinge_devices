@@ -215,7 +215,14 @@ class _SimulatorState extends State<_Simulator> {
           Text(
             'foldable: ${caps.isFoldable}   '
             'hinge sensor: ${caps.hingeAngleSensor}   '
-            'folding feature: ${caps.foldingFeature}',
+            'folding feature: ${caps.foldingFeature}   '
+            'outer display: ${caps.outerDisplay}',
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+          Text(
+            'active display: ${widget.state.display.active.name}   '
+            'separating: ${widget.state.display.isSeparating}   '
+            'angle updates: ${FoldableDevice.instance.angleUpdatesEnabled}',
             style: Theme.of(context).textTheme.labelSmall,
           ),
           const SizedBox(height: 8),

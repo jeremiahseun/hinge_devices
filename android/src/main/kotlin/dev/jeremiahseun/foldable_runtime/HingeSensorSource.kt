@@ -10,10 +10,11 @@ import android.os.Build
 /**
  * Wraps [Sensor.TYPE_HINGE_ANGLE], available since API 30.
  *
- * The sensor is an on-change sensor, so it only fires when the hinge actually
- * moves. It is still registered lazily and unregistered whenever the host
- * activity is not resumed — a sensor left registered across a backgrounded app
- * is the classic way a library gets blamed for battery drain.
+ * Registered at two rates. Posture only needs to know when the hinge settles,
+ * so the default is [SensorManager.SENSOR_DELAY_NORMAL]. Angle-driven effects
+ * need every intermediate reading, so enabling angle updates re-registers at
+ * [SensorManager.SENSOR_DELAY_GAME]. Running at the fast rate all the time
+ * would be the one part of this package that could be blamed for battery.
  */
 internal class HingeSensorSource(
     context: Context,
@@ -33,32 +34,53 @@ internal class HingeSensorSource(
     /** Whether this device exposes a hinge-angle sensor at all. */
     val isAvailable: Boolean get() = sensor != null
 
-    /** The last reading, or null if the sensor has never fired. */
+    /**
+     * The last reading, or null when the sensor is not currently delivering.
+     *
+     * Deliberately cleared on [stop]. A reading held across an unregister is
+     * stale by definition, and a stale "0" is indistinguishable from a device
+     * that is genuinely shut — which is how an opened Flip ends up rendering
+     * its closed layout.
+     */
     var lastAngle: Float? = null
         private set
 
-    private var registered = false
+    /** Total readings delivered since attach. Surfaced for device reports. */
+    var eventCount: Int = 0
+        private set
 
-    fun start() {
+    private var registered = false
+    private var fastRate = false
+
+    /** Registers the sensor, or re-registers it when the rate changes. */
+    fun start(fast: Boolean = false) {
         val manager = sensorManager ?: return
         val hinge = sensor ?: return
-        if (registered) return
-        registered = manager.registerListener(
-            this,
-            hinge,
-            SensorManager.SENSOR_DELAY_UI,
-        )
+        if (registered && fast == fastRate) return
+        if (registered) manager.unregisterListener(this)
+
+        fastRate = fast
+        val delay = if (fast) {
+            SensorManager.SENSOR_DELAY_GAME
+        } else {
+            SensorManager.SENSOR_DELAY_NORMAL
+        }
+        // An on-change sensor re-delivers its current value on registration,
+        // so lastAngle repopulates without waiting for the user to move it.
+        registered = manager.registerListener(this, hinge, delay)
     }
 
     fun stop() {
         if (!registered) return
         sensorManager?.unregisterListener(this)
         registered = false
+        lastAngle = null
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
         val value = event?.values?.firstOrNull() ?: return
         lastAngle = value
+        eventCount++
         onAngle(value)
     }
 

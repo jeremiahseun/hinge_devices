@@ -101,6 +101,10 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
       capabilities: _capabilities,
       manufacturer: manufacturer,
       model: model,
+      diagnostics: <String, Object?>{
+        for (final entry in reply.entries)
+          if (entry.value is! bool) entry.key.toString(): entry.value,
+      },
     );
   }
 
