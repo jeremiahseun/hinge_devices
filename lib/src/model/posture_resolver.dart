@@ -39,16 +39,19 @@ class PostureResolver {
     double? angle,
     bool hasOuterDisplay = false,
   }) {
-    // Closed is angle-only, and *only* when no folding feature is reported.
+    // Closed is angle-only: it is the one posture no folding feature reports.
     //
-    // A folded device reports no folding feature at all, so the presence of
-    // one is proof the device is open. Trusting a low angle over a live
-    // folding feature is how a Flip that has just been opened stays stuck on
-    // its closed layout: the activity is recreated during the transition and
-    // the last sensor reading is still the closed one.
-    if (featureState == null &&
-        angle != null &&
-        angle <= thresholds.closedAtOrBelow) {
+    // This deliberately outranks the folding feature. A Flip running on its
+    // cover screen can still report a feature, and treating that as proof the
+    // device is open puts a shut phone on its opened layout.
+    //
+    // The hazard is a *stale* reading — the activity is recreated when the
+    // device opens, and a hinge angle held across that transition still says
+    // closed. That is handled at the source rather than here: the sensor
+    // clears its reading when it is unregistered, and it keeps running
+    // through the configuration change that unfolding triggers. A stale angle
+    // arrives as null, and null never resolves to closed.
+    if (angle != null && angle <= thresholds.closedAtOrBelow) {
       return hasOuterDisplay ? FoldPosture.flipClosed : FoldPosture.closed;
     }
 

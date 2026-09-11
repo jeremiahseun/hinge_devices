@@ -8,3 +8,6 @@ pubspec.lock
 .idea/
 .vscode/
 /android/.gradle
+android/.gradle/
+android/local.properties
+example/android/local.properties

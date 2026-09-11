@@ -1,6 +1,6 @@
 name: foldable_runtime
 description: A unified posture, hinge and display model for foldable devices. Posture-first, capability-driven, and safe to add to any app.
-version: 0.2.0
+version: 0.2.1
 repository: https://github.com/jeremiahseun/hinge_devices
 issue_tracker: https://github.com/jeremiahseun/hinge_devices/issues
 

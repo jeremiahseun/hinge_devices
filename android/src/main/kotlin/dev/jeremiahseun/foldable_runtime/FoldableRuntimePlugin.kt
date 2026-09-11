@@ -51,6 +51,9 @@ class FoldableRuntimePlugin :
     private var windowWidth = 0
     private var windowHeight = 0
 
+    private var activeDisplayCache = "unknown"
+    private var activeDisplayCacheKey = 0L
+
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
         hingeSensor = HingeSensorSource(context) { emitState() }
@@ -157,7 +160,52 @@ class FoldableRuntimePlugin :
         windowLayout.stop()
     }
 
+    /**
+     * Builds and delivers a state snapshot.
+     *
+     * Always hops to the main thread first. The hinge sensor calls back on
+     * the sensor thread, and the window and display APIs this reads are not
+     * safe to touch from there — doing so threw inside onSensorChanged and
+     * silently killed every angle update, while main-thread window-layout
+     * callbacks kept working. Hence also the catch: one bad read must not
+     * take the stream down.
+     */
     private fun emitState() {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            emitStateOnMainThread()
+        } else {
+            mainHandler.post(::emitStateOnMainThread)
+        }
+    }
+
+    private fun emitStateOnMainThread() {
+        try {
+            buildAndSend()
+        } catch (error: Throwable) {
+            android.util.Log.w(
+                "foldable_runtime",
+                "dropped a state update: ${error.message}",
+            )
+        }
+    }
+
+    /**
+     * Which display the app is on, recomputed only when the window resizes.
+     *
+     * Enumerating displays is not free, and the hinge sensor can fire many
+     * times a second while an angle-driven effect is running. The window size
+     * is the only input that can change the answer.
+     */
+    private fun cachedActiveDisplay(): String {
+        val key = windowWidth.toLong() shl 32 or windowHeight.toLong()
+        if (key != activeDisplayCacheKey) {
+            activeDisplayCacheKey = key
+            activeDisplayCache = displays?.activeDisplay(activity) ?: "unknown"
+        }
+        return activeDisplayCache
+    }
+
+    private fun buildAndSend() {
         val sink = this.sink ?: return
         val density = context.resources.displayMetrics.density
         val feature = windowLayout.lastFeature
@@ -177,7 +225,7 @@ class FoldableRuntimePlugin :
                 else -> null
             },
             "hingeAngle" to hingeSensor?.lastAngle?.toDouble(),
-            "activeDisplay" to (displays?.activeDisplay(activity) ?: "unknown"),
+            "activeDisplay" to cachedActiveDisplay(),
             "windowWidth" to windowWidth / density,
             "windowHeight" to windowHeight / density,
         )
@@ -199,6 +247,6 @@ class FoldableRuntimePlugin :
             )
         }
 
-        mainHandler.post { sink.success(payload) }
+        sink.success(payload)
     }
 }

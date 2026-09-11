@@ -2,73 +2,97 @@ import 'package:flutter/painting.dart' show Axis;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:foldable_runtime/foldable_runtime.dart';
 
-/// Regression tests for the Flip that stayed on its closed layout after being
-/// opened.
+/// Regression tests for the two ways posture has gone wrong on a physical
+/// Galaxy Z Flip.
 ///
-/// The activity is recreated during the fold transition, so the last hinge
-/// reading is still the closed one when the first post-open state arrives. A
-/// folding feature is only ever reported by an open device, so its presence
-/// must outrank a low angle.
+/// 1. It stayed closed after the device was opened, because the hinge reading
+///    was stale across the activity recreation that unfolding causes.
+/// 2. It reported an open posture while the app was running on the cover
+///    screen, because an over-correction for (1) let a folding feature
+///    outrank a perfectly fresh closed angle.
+///
+/// The rule that satisfies both: a closed angle wins, and staleness is fixed
+/// at the sensor rather than papered over in the resolver. A reading held
+/// across an unregister is cleared, so a stale angle arrives as null — and
+/// null never resolves to closed.
 void main() {
   const resolver = PostureResolver();
 
-  test('a folding feature outranks a stale closed angle', () {
-    expect(
-      resolver.resolve(
+  group('running on the cover screen', () {
+    test('a fresh closed angle outranks a reported folding feature', () {
+      expect(
+        resolver.resolve(
+          featureState: FoldingFeatureState.flat,
+          angle: 0,
+          hasOuterDisplay: true,
+        ),
+        FoldPosture.flipClosed,
+        reason: 'a shut Flip must not render its opened layout',
+      );
+    });
+
+    test('flipClosed is reported when the device has a cover display', () {
+      expect(
+        resolver.resolve(angle: 0, hasOuterDisplay: true),
+        FoldPosture.flipClosed,
+      );
+    });
+
+    test('closed is reported when it does not', () {
+      expect(resolver.resolve(angle: 0), FoldPosture.closed);
+    });
+  });
+
+  group('opening the device', () {
+    test('a cleared reading does not resolve to closed', () {
+      // The sensor clears lastAngle when it is unregistered, so a stale
+      // reading reaches the resolver as null rather than as zero.
+      expect(
+        resolver.resolve(featureState: FoldingFeatureState.flat),
+        FoldPosture.flat,
+      );
+    });
+
+    test('a null angle with no feature stays unknown, never closed', () {
+      expect(resolver.resolve(), FoldPosture.unknown);
+    });
+
+    test('the full close-then-open sequence resolves correctly', () {
+      // 1. Shut, app on the cover screen.
+      var posture = resolver.resolve(
         featureState: FoldingFeatureState.flat,
         angle: 0,
         hasOuterDisplay: true,
-      ),
-      FoldPosture.flat,
-      reason: 'device reporting a folding feature cannot be shut',
-    );
-  });
+      );
+      expect(posture, FoldPosture.flipClosed);
 
-  test('a stale closed angle does not mask a half-opened feature', () {
-    expect(
-      resolver.resolve(
+      // 2. Opening. The sensor stays registered through the configuration
+      //    change, so the reading is current rather than cleared or stale.
+      posture = resolver.resolve(
         featureState: FoldingFeatureState.halfOpened,
         featureOrientation: Axis.horizontal,
-        angle: 3,
+        angle: 95,
         hasOuterDisplay: true,
-      ),
-      FoldPosture.tabletop,
-    );
-  });
+      );
+      expect(posture, FoldPosture.tabletop);
 
-  test('closed is still reported when no folding feature exists', () {
-    expect(
-      resolver.resolve(angle: 0, hasOuterDisplay: true),
-      FoldPosture.flipClosed,
-    );
-    expect(resolver.resolve(angle: 0), FoldPosture.closed);
-  });
+      // 3. Fully open.
+      posture = resolver.resolve(
+        featureState: FoldingFeatureState.flat,
+        angle: 180,
+        hasOuterDisplay: true,
+      );
+      expect(posture, FoldPosture.flat);
+    });
 
-  test('a null angle with no feature stays unknown', () {
-    // The sensor clears its reading when it is unregistered rather than
-    // holding a stale one, so null must not be read as closed.
-    expect(resolver.resolve(), FoldPosture.unknown);
-  });
-
-  test('the full close-then-open sequence resolves correctly', () {
-    // 1. Shut: no folding feature, angle at zero.
-    var posture = resolver.resolve(angle: 0, hasOuterDisplay: true);
-    expect(posture, FoldPosture.flipClosed);
-
-    // 2. Opening, activity recreated: feature arrives before a fresh reading.
-    posture = resolver.resolve(
-      featureState: FoldingFeatureState.flat,
-      angle: 0,
-      hasOuterDisplay: true,
-    );
-    expect(posture, FoldPosture.flat, reason: 'this is the bug that shipped');
-
-    // 3. Sensor catches up.
-    posture = resolver.resolve(
-      featureState: FoldingFeatureState.flat,
-      angle: 180,
-      hasOuterDisplay: true,
-    );
-    expect(posture, FoldPosture.flat);
+    test('a full detach clears the reading rather than holding it', () {
+      // Worst case: the activity is destroyed, the sensor is unregistered,
+      // and the folding feature arrives first. Unknown is a recoverable
+      // answer; closed is not.
+      expect(
+        resolver.resolve(hasOuterDisplay: true),
+        FoldPosture.unknown,
+      );
+    });
   });
 }

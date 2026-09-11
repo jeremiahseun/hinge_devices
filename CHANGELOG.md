@@ -1,3 +1,43 @@
+## 0.2.1
+
+Fixes two regressions found on a physical Galaxy Z Flip, plus the API flaw that
+let one of them happen.
+
+**Fixed**
+
+- A Flip running on its cover screen reported an open posture. 0.2.0 let a
+  folding feature outrank a closed hinge angle, but a Flip on its Flex Window
+  still reports a feature. A fresh closed angle wins again; the stale-reading
+  hazard that change was guarding against is handled at the sensor instead,
+  where 0.2.0 already fixed it.
+- Hinge angle stopped streaming entirely. `emitState` was reading window and
+  display APIs from the hinge sensor's callback thread, which threw inside
+  `onSensorChanged` and killed every angle update, while main-thread
+  window-layout callbacks kept working and masked it. State is now always
+  built on the main thread, and a failed read drops one update instead of the
+  stream.
+- Cover-screen detection reflected onto `Display.getType()`, which is hidden
+  API and blocked from Android 9 onward — it failed silently and reported
+  every display as external. Replaced with public signals only:
+  `FLAG_PRESENTATION`/`FLAG_PRIVATE` plus a window-size comparison. It reports
+  `unknown` rather than guessing, and it never feeds posture.
+
+**Added**
+
+- `CoarsePosture` and `FoldPosture.coarse`, collapsing seven postures to the
+  three apps branch on. Switching on `FoldPosture` directly and matching
+  `FoldPosture.closed` exactly silently drops `flipClosed` — which is how a
+  shut Flip ended up rendering its opened layout. `CoarsePosture` is
+  exhaustive, so the analyzer catches it.
+- An always-visible diagnostics strip in the example app: posture, live angle,
+  angle bar, active display and capabilities.
+
+**Changed**
+
+- The display lookup is cached against window size, so it is off the hot path
+  when an angle-driven effect is running.
+- `android/.gradle` and `android/local.properties` are no longer tracked.
+
 ## 0.2.0
 
 Fixes two bugs found on a physical Galaxy Z Flip, plus the v0.2 milestone.

@@ -28,34 +28,127 @@ class ExampleApp extends StatelessWidget {
 }
 
 /// The example's single screen.
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   /// Creates the home page.
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _showSimulator = false;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('foldable_runtime')),
+      appBar: AppBar(
+        title: const Text('foldable_runtime'),
+        actions: [
+          IconButton(
+            tooltip: 'Posture simulator',
+            icon: Icon(_showSimulator ? Icons.science : Icons.science_outlined),
+            onPressed: () =>
+                setState(() => _showSimulator = !_showSimulator),
+          ),
+        ],
+      ),
       body: FoldableBuilder(
         builder: (context, state) => Column(
           children: [
             Expanded(child: _layoutFor(state)),
-            // const Divider(height: 1),
-            // _Simulator(state: state),
+            const Divider(height: 1),
+            _Diagnostics(state: state),
+            if (_showSimulator) ...[
+              const Divider(height: 1),
+              _Simulator(state: state),
+            ],
           ],
         ),
       ),
     );
   }
 
-  // The whole point of the package: one switch on posture, no brand checks.
+  // The whole point of the package: one switch, no brand checks.
+  //
+  // Note the tabletop and book cases are matched before falling back to the
+  // coarse switch. Matching FoldPosture.closed on its own would silently drop
+  // flipClosed and put a shut Flip on its opened layout, which is exactly why
+  // CoarsePosture exists.
   Widget _layoutFor(FoldableState state) {
-    return switch (state.posture) {
-      FoldPosture.tabletop => const _TabletopLayout(),
-      FoldPosture.book => const _BookLayout(),
-      FoldPosture.closed => const _CompactLayout(),
-      _ => const _FullLayout(),
+    if (state.posture == FoldPosture.tabletop) return const _TabletopLayout();
+    if (state.posture == FoldPosture.book) return const _BookLayout();
+
+    return switch (state.posture.coarse) {
+      CoarsePosture.closed => const _CompactLayout(),
+      CoarsePosture.halfOpen => const _TabletopLayout(),
+      CoarsePosture.open => const _FullLayout(),
     };
+  }
+}
+
+/// An always-visible readout of what the package is actually seeing.
+///
+/// Angle and posture come from different signals with different failure
+/// modes, so showing both side by side is the fastest way to tell which one
+/// has gone wrong on a real device.
+class _Diagnostics extends StatelessWidget {
+  const _Diagnostics({required this.state});
+
+  final FoldableState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final caps = state.capabilities;
+    final angle = state.hinge.angle;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                state.posture.name,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                angle == null ? 'no angle' : '${angle.toStringAsFixed(1)}°',
+                style: theme.textTheme.titleMedium,
+              ),
+              const Spacer(),
+              Text(
+                state.display.active.name,
+                style: theme.textTheme.labelMedium,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // A live bar is easier to read than a number when you are folding
+          // the device with one hand and watching with the other.
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: (angle ?? 0) / 180,
+              minHeight: 6,
+              backgroundColor: theme.colorScheme.surfaceContainerHighest,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'foldable ${caps.isFoldable} · sensor ${caps.hingeAngleSensor} · '
+            'feature ${caps.foldingFeature} · outer ${caps.outerDisplay} · '
+            'angle updates ${FoldableDevice.instance.angleUpdatesEnabled}',
+            style: theme.textTheme.labelSmall,
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -145,10 +238,13 @@ class _Panel extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Hinge angle drives an effect, never the layout above.
+          // Hinge angle drives an effect, never the layout above. A full
+          // quarter turn from flat to closed, so it is obvious at a glance
+          // whether readings are actually streaming.
           HingeAngleBuilder(
             autoEnable: true,
             builder: (context, angle) => Transform.rotate(
-              angle: (180 - angle) / 180 * 0.4,
+              angle: (180 - angle) / 180 * 1.57,
               child: Icon(icon, size: 56, color: theme.colorScheme.primary),
             ),
           ),
