@@ -8,7 +8,12 @@
 import 'package:flutter/material.dart';
 import 'package:foldable_runtime/foldable_runtime.dart';
 
-void main() => runApp(const _ReportApp());
+void main() {
+  // Run the sensor at the effects rate so the report reflects the best the
+  // device can do, not the posture-only rate.
+  FoldableDevice.instance.enableAngleUpdates();
+  runApp(const _ReportApp());
+}
 
 class _ReportApp extends StatelessWidget {
   const _ReportApp();
@@ -46,10 +51,20 @@ class _ReportApp extends StatelessWidget {
     state.capabilities.raw.forEach((key, value) {
       buffer.writeln('  $key: $value');
     });
+    buffer.writeln();
+    buffer.writeln('diagnostics:');
+    FoldableDevice.instance.diagnostics.forEach((key, value) {
+      buffer.writeln('  $key: $value');
+    });
+
     buffer
       ..writeln()
       ..writeln('Fold the device slowly through every position and paste the')
-      ..writeln('reading at closed, 90 degrees, and fully flat.');
+      ..writeln('reading at closed, 90 degrees, and fully flat.')
+      ..writeln()
+      ..writeln('If hingeEventCount barely moves while you fold, the sensor is')
+      ..writeln('reporting coarsely rather than continuously — say so in the')
+      ..writeln('issue, it is a quirk worth recording.');
     return buffer.toString();
   }
 }

@@ -5,9 +5,9 @@ A unified posture, hinge and display model for foldable devices.
 Posture-first, capability-driven, and safe to add to any app — on a device that
 doesn't fold, this package reports a rigid device and does nothing else.
 
-> **Status: v0.1 — Flutter + Android.** iOS (iPhone Duo) and React Native are
-> on the roadmap. See [PRD.md](PRD.md) for the full plan and the honest critique
-> of it.
+> **Status: v0.2 — Flutter + Android**, verified on a physical Galaxy Z Flip.
+> iOS (iPhone Duo) and React Native are on the roadmap. See [PRD.md](PRD.md)
+> for the full plan and the honest critique of it.
 
 ## Why this and not `MediaQuery.displayFeatures`
 
@@ -114,6 +114,36 @@ The example app ships a working simulator panel. Run it:
 cd example && flutter run
 ```
 
+## Test every posture
+
+```dart
+import 'package:foldable_runtime/testing.dart';
+
+testWidgets('adapts to tabletop', (tester) async {
+  final device = installFoldableTestPlatform();
+  addTearDown(FoldableDevice.resetForTesting);
+
+  await tester.pumpWidget(const MyApp());
+  await pumpFoldable(tester, device, FoldPosture.tabletop);
+
+  expect(find.byType(TabletopLayout), findsOneWidget);
+});
+```
+
+`forEachPosture` runs a body across the whole matrix, so one test covers every
+posture your app can be in.
+
+## App continuity
+
+Keeping state when the device opens is a manifest concern, not an API — there
+is no continuity call to make. Check yours:
+
+```bash
+dart run tool/check_manifest.dart android/app/src/main/AndroidManifest.xml
+```
+
+See [doc/continuity.md](doc/continuity.md).
+
 ## Device quirks
 
 Vendors disagree about hinge convention: most report `0` closed to `180` flat,
@@ -134,7 +164,7 @@ tool/report_device.dart` and paste the output into an issue.
 
 | Platform | Posture | Angle | Notes |
 |---|---|---|---|
-| Android 11+ | ✅ | ✅ | `FoldingFeature` + `TYPE_HINGE_ANGLE` |
+| Android 11+ | ✅ | ✅ | `FoldingFeature` + `TYPE_HINGE_ANGLE`; cover display detected |
 | Android 7–10 | ✅ | ❌ | folding feature only |
 | iOS | — | — | reports rigid; iPhone Duo support in v0.3 |
 | Web, desktop | — | — | reports rigid; safe to include |
@@ -145,9 +175,11 @@ tool/report_device.dart` and paste the output into an issue.
   folding feature and a sensor reading. Posture derivation, angle
   normalisation and deduplication all happen in Dart, so the rules are
   identical on every platform and testable without hardware.
-- **Folding feature beats angle.** Angle is consulted only to detect `closed`
-  (which no folding feature reports) and as a fallback when no folding feature
-  exists at all.
+- **Folding feature beats angle, always.** A shut device reports no folding
+  feature, so one being present proves the device is open. Angle is consulted
+  for `closed` only when there is no folding feature, and as a fallback when
+  the device has none at all. Trusting a low angle over a live folding feature
+  is how an opened Flip stays stuck on its closed layout.
 - **Posture events are deduplicated; angle events are not.** Emitting a posture
   sixty times a second because the angle wiggled is the classic performance
   mistake in this category.

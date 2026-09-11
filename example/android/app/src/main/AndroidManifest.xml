@@ -2,6 +2,7 @@
     <application
         android:label="foldable_runtime_example"
         android:name="${applicationName}"
+        android:resizeableActivity="true"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

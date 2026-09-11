@@ -65,7 +65,7 @@ class FoldableDevice {
   FoldableState? _current;
   FoldableState? _override;
   Future<FoldableCapabilities>? _capabilities;
-  bool _angleUpdatesEnabled = false;
+  int _angleSubscribers = 0;
 
   /// The most recent state, or `null` before the first event.
   ///
@@ -75,11 +75,29 @@ class FoldableDevice {
   /// The device's capabilities. Queried once and cached.
   Future<FoldableCapabilities> get capabilities =>
       _capabilities ??= _platform.capabilities().then((result) {
+        _diagnostics = <String, Object?>{
+          'manufacturer': result.manufacturer,
+          'model': result.model,
+          ...result.diagnostics,
+        };
         return result.capabilities;
       });
 
+  Map<String, Object?> _diagnostics = const <String, Object?>{};
+
+  /// Platform values useful when diagnosing a device, available once
+  /// [capabilities] has resolved.
+  ///
+  /// Contents are platform-specific and not part of the stable API — this
+  /// exists so `tool/report_device.dart` can produce a useful bug report.
+  Map<String, Object?> get diagnostics => _diagnostics;
+
   /// Whether angle updates are currently streaming.
-  bool get angleUpdatesEnabled => _angleUpdatesEnabled;
+  bool get angleUpdatesEnabled => _angleSubscribers > 0;
+
+  /// How many callers currently hold an angle-update request.
+  @visibleForTesting
+  int get angleSubscriberCount => _angleSubscribers;
 
   /// Every state change, deduplicated on layout-relevant fields.
   ///
@@ -126,19 +144,26 @@ class FoldableDevice {
 
   /// Turns the hinge-angle sensor stream on.
   ///
-  /// Off by default. On Android the hinge sensor is an on-change sensor, so
-  /// the cost is small — but it is not zero, and it is the only part of this
-  /// package that touches battery.
+  /// Off by default. On Android this raises the sensor's sampling rate; the
+  /// hinge sensor is an on-change sensor so the cost is small, but it is not
+  /// zero and it is the only part of this package that touches battery.
+  ///
+  /// Requests are reference counted. Two widgets can each enable updates and
+  /// the first one disposing will not cut the sensor out from under the
+  /// second — pair every call with exactly one [disableAngleUpdates].
   Future<void> enableAngleUpdates() async {
-    if (_angleUpdatesEnabled) return;
-    _angleUpdatesEnabled = true;
+    _angleSubscribers++;
+    if (_angleSubscribers > 1) return;
     await _platform.setAngleUpdatesEnabled(true);
   }
 
-  /// Turns the hinge-angle stream off.
+  /// Releases one angle-update request.
+  ///
+  /// The sensor rate drops back only once every holder has released.
   Future<void> disableAngleUpdates() async {
-    if (!_angleUpdatesEnabled) return;
-    _angleUpdatesEnabled = false;
+    if (_angleSubscribers == 0) return;
+    _angleSubscribers--;
+    if (_angleSubscribers > 0) return;
     await _platform.setAngleUpdatesEnabled(false);
   }
 

@@ -64,10 +64,13 @@ void main() {
       );
     });
 
-    test('closed wins even when a feature is reported', () {
+    test('a reported folding feature outranks a closed angle', () {
+      // A shut device reports no folding feature, so one being present proves
+      // the device is open and the angle is stale. See
+      // continuity_regression_test.dart.
       expect(
         resolver.resolve(angle: 2, featureState: FoldingFeatureState.halfOpened),
-        FoldPosture.closed,
+        FoldPosture.halfOpened,
       );
     });
   });

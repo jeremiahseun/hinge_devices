@@ -1,6 +1,6 @@
 name: foldable_runtime
 description: A unified posture, hinge and display model for foldable devices. Posture-first, capability-driven, and safe to add to any app.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/jeremiahseun/hinge_devices
 issue_tracker: https://github.com/jeremiahseun/hinge_devices/issues
 
@@ -11,10 +11,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-dev_dependencies:
+  # lib/testing.dart ships the posture test kit, so flutter_test is a real
+  # dependency rather than a dev one.
   flutter_test:
     sdk: flutter
+
+dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
