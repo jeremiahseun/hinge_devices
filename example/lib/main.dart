@@ -40,8 +40,8 @@ class HomePage extends StatelessWidget {
         builder: (context, state) => Column(
           children: [
             Expanded(child: _layoutFor(state)),
-            const Divider(height: 1),
-            _Simulator(state: state),
+            // const Divider(height: 1),
+            // _Simulator(state: state),
           ],
         ),
       ),
@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
     return switch (state.posture) {
       FoldPosture.tabletop => const _TabletopLayout(),
       FoldPosture.book => const _BookLayout(),
-      _ when state.posture.isClosed => const _CompactLayout(),
+      FoldPosture.closed => const _CompactLayout(),
       _ => const _FullLayout(),
     };
   }
