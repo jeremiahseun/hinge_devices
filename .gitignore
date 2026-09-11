@@ -7,3 +7,4 @@ pubspec.lock
 *.iml
 .idea/
 .vscode/
+/android/.gradle

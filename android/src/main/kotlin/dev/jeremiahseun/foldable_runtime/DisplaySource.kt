@@ -25,7 +25,7 @@ internal class DisplaySource(private val context: Context) {
     private fun builtInAreas(): List<Long> {
         val displays = displayManager?.getDisplays(null) ?: return emptyList()
         return displays
-            .filter { it.displayId == Display.DEFAULT_DISPLAY || isBuiltIn(it) }
+            .filter { it.displayId == Display.DEFAULT_DISPLAY || it.isBuiltIn }
             .map { display ->
                 val metrics = DisplayMetrics()
                 @Suppress("DEPRECATION")
@@ -35,14 +35,20 @@ internal class DisplaySource(private val context: Context) {
             .sortedDescending()
     }
 
-    private fun isBuiltIn(display: Display): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            display.type == Display.TYPE_INTERNAL
+    /** True if this display is an internal/built-in screen. */
+    private val Display.isBuiltIn: Boolean
+        get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            runCatching {
+                val getType = Display::class.java.getMethod("getType")
+                (getType.invoke(this) as? Int) == 1
+            }.getOrDefault(false)
         } else {
-            @Suppress("DEPRECATION")
-            display.type == Display.TYPE_BUILT_IN
+            runCatching {
+                @Suppress("DEPRECATION")
+                val getType = Display::class.java.getMethod("getType")
+                (getType.invoke(this) as? Int) == 1
+            }.getOrDefault(false)
         }
-    }
 
     /** True when the device reports more than one built-in display. */
     fun hasOuterDisplay(): Boolean = builtInAreas().size > 1

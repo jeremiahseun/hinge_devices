@@ -64,10 +64,10 @@ class _FullLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const _Panel(
-        label: 'Flat — full app',
-        detail: 'One continuous surface. Lay out as you normally would.',
-        icon: Icons.tablet_android,
-      );
+    label: 'Flat — full app',
+    detail: 'One continuous surface. Lay out as you normally would.',
+    icon: Icons.tablet_android,
+  );
 }
 
 class _TabletopLayout extends StatelessWidget {
@@ -122,10 +122,10 @@ class _CompactLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const _Panel(
-        label: 'Closed — compact app',
-        detail: 'Cover-screen sized. Same state, less room.',
-        icon: Icons.smartphone,
-      );
+    label: 'Closed — compact app',
+    detail: 'Cover-screen sized. Same state, less room.',
+    icon: Icons.smartphone,
+  );
 }
 
 class _Panel extends StatelessWidget {
