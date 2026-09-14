@@ -7,15 +7,14 @@
     "dart": {
       "package": "hinge_devices",
       "ecosystem": "pub.dev",
-      "manifest": "pubspec.yaml",
+      "manifest": "flutter/pubspec.yaml",
       "patch": 0
     },
     "react_native": {
       "package": "hinge_devices",
       "ecosystem": "npm",
       "manifest": "react-native/package.json",
-      "patch": 0,
-      "pending": true
+      "patch": 0
     }
   }
 }

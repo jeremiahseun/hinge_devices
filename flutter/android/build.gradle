@@ -1,0 +1,54 @@
+group 'dev.jeremiahseun.hinge_devices'
+version '0.1.0'
+
+buildscript {
+    // Flutter 3.47's DependencyVersionChecker errors below KGP 2.2.20.
+    ext.kotlin_version = '2.2.20'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Flutter 3.47 requires AGP 8.11.1 or newer. A consuming app's own
+        // AGP version wins over this, but keeping it aligned avoids a skew
+        // between the plugin and the app it is built into.
+        classpath 'com.android.tools.build:gradle:8.11.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace 'dev.jeremiahseun.hinge_devices'
+    compileSdk 35
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    defaultConfig {
+        // The package is safe on any device; foldable code paths are guarded.
+        minSdk 21
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "androidx.window:window:1.3.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1"
+}

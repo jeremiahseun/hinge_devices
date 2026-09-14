@@ -22,18 +22,23 @@ jobs:
           channel: stable
 
       - run: flutter pub get
+        working-directory: flutter
 
       # Re-run the gates rather than trusting that CI passed on the commit:
       # a tag can point anywhere.
-      - run: dart format --output=none --set-exit-if-changed lib bin test tool example/lib example/tool
+      - run: dart format --output=none --set-exit-if-changed lib bin test example/lib example/tool
+        working-directory: flutter
       - run: flutter analyze --fatal-infos --fatal-warnings
+        working-directory: flutter
       - run: flutter test
+        working-directory: flutter
       - run: dart run tool/check_versions.dart
+      - run: dart run tool/sync_shared.dart --check
 
       - name: Verify the tag matches the package version
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          PUBSPEC_VERSION=$(grep '^version:' flutter/pubspec.yaml | awk '{print $2}')
           if [ "$TAG_VERSION" != "$PUBSPEC_VERSION" ]; then
             echo "Tag $GITHUB_REF_NAME does not match pubspec version $PUBSPEC_VERSION"
             exit 1
@@ -42,3 +47,4 @@ jobs:
 
       - name: Publish
         run: flutter pub publish --force
+        working-directory: flutter
