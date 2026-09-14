@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart' show Axis;
 import 'package:flutter/services.dart';
@@ -117,7 +116,8 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
     final reply =
         await methodChannel.invokeMethod<Map<Object?, Object?>>('diagnostics');
     return <String, Object?>{
-      for (final entry in reply?.entries ?? const <MapEntry<Object?, Object?>>[])
+      for (final entry
+          in reply?.entries ?? const <MapEntry<Object?, Object?>>[])
         entry.key.toString(): entry.value,
       'learnedOuterDisplay': _learnedOuterDisplay,
       'largestWindowArea': _largestWindowArea,
@@ -159,6 +159,8 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
         range: _normalizer.quirk.range,
         status: _resolver.statusFor(angle),
         orientation: signals.featureOrientation,
+        resolution: _normalizer.quirk.resolution,
+        detentValues: _normalizer.quirk.detentValues,
       ),
       display: _resolveDisplay(signals.display, angle),
       capabilities: capabilities,

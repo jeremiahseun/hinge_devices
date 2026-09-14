@@ -68,7 +68,8 @@ void main() {
       // A Flip on its cover screen can still report a folding feature. See
       // continuity_regression_test.dart.
       expect(
-        resolver.resolve(angle: 2, featureState: FoldingFeatureState.halfOpened),
+        resolver.resolve(
+            angle: 2, featureState: FoldingFeatureState.halfOpened),
         FoldPosture.closed,
       );
     });

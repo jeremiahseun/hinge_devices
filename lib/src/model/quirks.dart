@@ -15,6 +15,8 @@ class HingeQuirk {
     required this.range,
     this.inverted = false,
     this.offset = 0,
+    this.resolution = HingeResolution.unknown,
+    this.detentValues = const <double>[],
   });
 
   /// The convention this device reports in.
@@ -26,8 +28,20 @@ class HingeQuirk {
   /// A constant added to the raw reading before normalisation.
   final double offset;
 
+  /// Whether this device's sensor sweeps or only reports at fixed positions.
+  final HingeResolution resolution;
+
+  /// The fixed positions a detent-reporting device produces.
+  final List<double> detentValues;
+
   /// The assumed behaviour when a device is not in the quirks table.
-  static const HingeQuirk assumed = HingeQuirk(range: HingeAngleRange.zeroTo180);
+  ///
+  /// Resolution is [HingeResolution.unknown] rather than
+  /// [HingeResolution.continuous] on purpose: assuming a smooth sweep and
+  /// being wrong produces an effect that visibly snaps, which is worse than
+  /// not offering the effect.
+  static const HingeQuirk assumed =
+      HingeQuirk(range: HingeAngleRange.zeroTo180);
 }
 
 /// Normalises raw hinge readings to `0` closed, `180` flat.
@@ -68,6 +82,23 @@ class HingeNormalizer {
 class FoldableQuirks {
   FoldableQuirks._();
 
+  /// Quirks shipped with the package, measured on real hardware.
+  ///
+  /// See `doc/devices.md` for how each entry was obtained. Entries live in
+  /// data rather than in logic because they change faster than this package's
+  /// release cadence, and because the people who own the hardware are the
+  /// ones who can measure it.
+  static final Map<String, HingeQuirk> _shipped = <String, HingeQuirk>{
+    // Galaxy Z Flip 5. Measured 2026-09-14: the sensor reports exactly three
+    // values across the device's whole range, however slowly it is folded.
+    // Continuous angle-driven effects are not buildable here.
+    'samsung/sm-f731n': const HingeQuirk(
+      range: HingeAngleRange.zeroTo180,
+      resolution: HingeResolution.detents,
+      detentValues: <double>[0, 90, 180],
+    ),
+  };
+
   static final Map<String, HingeQuirk> _table = <String, HingeQuirk>{};
 
   /// Registers or replaces a quirk for a device key.
@@ -83,8 +114,12 @@ class FoldableQuirks {
     if (manufacturer == null) return HingeQuirk.assumed;
     final manufacturerKey = manufacturer.toLowerCase();
     final deviceKey = '$manufacturerKey/${model?.toLowerCase() ?? ''}';
+    // Runtime registrations win over shipped entries, so an app can correct
+    // a bad entry without waiting for a release.
     return _table[deviceKey] ??
         _table['$manufacturerKey/*'] ??
+        _shipped[deviceKey] ??
+        _shipped['$manufacturerKey/*'] ??
         HingeQuirk.assumed;
   }
 

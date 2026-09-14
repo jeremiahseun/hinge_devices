@@ -1,0 +1,13 @@
+{
+  "$comment": "Single source of truth for release versions. See VERSIONING.md.",
+  "specVersion": 1,
+  "major": 0,
+  "minor": 3,
+  "packages": {
+    "foldable_runtime": {
+      "ecosystem": "pub.dev",
+      "manifest": "pubspec.yaml",
+      "patch": 0
+    }
+  }
+}

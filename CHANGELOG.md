@@ -1,3 +1,32 @@
+## 0.3.0
+
+First public release.
+
+Flutter + Android, validated on a physical Samsung Galaxy Z Flip 5 across five
+rounds of on-device testing. Every bug that testing found is fixed and covered
+by a regression test.
+
+**Added**
+
+- `HingeResolution` and `Hinge.supportsContinuousEffects`. Nothing in Android's
+  API says whether `TYPE_HINGE_ANGLE` sweeps through intermediate values or
+  only fires at fixed positions, and no vendor documents it — but it decides
+  whether a continuous angle-driven effect is buildable at all. Measured on a
+  Z Flip 5: exactly three values, `[0, 90, 180]`, however slowly the device is
+  folded. That is now a shipped quirk, so every app on that hardware gets the
+  answer without discovering it the hard way.
+- `spec/version.json`, `tool/check_versions.dart` and `VERSIONING.md`. Major
+  and minor are shared across the Dart and npm packages so one version number
+  describes one API on every framework; patch is per package. CI fails on
+  drift.
+- Continuous integration: analyze, format, test, version check, publish
+  dry-run and a pana score floor on every push.
+
+See `doc/devices.md` for measured per-device behaviour, and `PRD.md` for the
+roadmap and its critique.
+
+### Earlier development
+
 ## 0.2.2
 
 **Fixed**

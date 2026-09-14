@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+# A published package's guarantees are only as good as what CI enforces.
+# Everything this repo claims — formatting, zero analyzer issues, a green test
+# suite, versions in step across packages, and a pub.dev score of 160 — is
+# checked here on every push, so none of it can quietly rot.
+jobs:
+  flutter:
+    name: Analyze, test and score
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test tool example/lib
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Test
+        run: flutter test
+
+      - name: Check package versions are in step
+        run: dart run tool/check_versions.dart
+
+      - name: Lint the example app's manifest for foldable continuity
+        run: dart run tool/check_manifest.dart example/android/app/src/main/AndroidManifest.xml
+
+      - name: Publish dry run
+        run: flutter pub publish --dry-run
+
+      - name: Score with pana
+        run: |
+          flutter pub global activate pana
+          # Fail the build below a perfect score. Every deduction pana reports
+          # is something a user of this package would notice.
+          flutter pub global run pana --no-warning --exit-code-threshold 0 .
+
+  android:
+    name: Build the Android plugin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # The Kotlin is the half of this package that Dart tests cannot reach,
+      # so it gets compiled on every push.
+      - name: Build the example APK
+        working-directory: example
+        run: flutter build apk --debug

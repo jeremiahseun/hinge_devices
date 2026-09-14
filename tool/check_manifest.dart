@@ -16,9 +16,8 @@ const _requiredConfigChanges = <String>[
 ];
 
 void main(List<String> args) {
-  final path = args.isEmpty
-      ? 'android/app/src/main/AndroidManifest.xml'
-      : args.first;
+  final path =
+      args.isEmpty ? 'android/app/src/main/AndroidManifest.xml' : args.first;
   final file = File(path);
 
   if (!file.existsSync()) {
@@ -38,9 +37,8 @@ void main(List<String> args) {
     );
   }
 
-  final configChanges = RegExp('android:configChanges="([^"]*)"')
-      .firstMatch(manifest)
-      ?.group(1);
+  final configChanges =
+      RegExp('android:configChanges="([^"]*)"').firstMatch(manifest)?.group(1);
 
   if (configChanges == null) {
     findings.add(

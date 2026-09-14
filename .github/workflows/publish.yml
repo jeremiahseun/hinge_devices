@@ -1,0 +1,44 @@
+name: Publish to pub.dev
+
+# Publishes on a tag like v0.3.0, using pub.dev's automated publishing.
+# No credentials are stored here: pub.dev verifies the GitHub Actions OIDC
+# token instead. Enable it under the package's Admin tab on pub.dev and set
+# the tag pattern to v{{version}}.
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+jobs:
+  publish:
+    permissions:
+      # Required for pub.dev's OIDC-based authentication.
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - run: flutter pub get
+
+      # Re-run the gates rather than trusting that CI passed on the commit:
+      # a tag can point anywhere.
+      - run: dart format --output=none --set-exit-if-changed lib test tool example/lib
+      - run: flutter analyze --fatal-infos --fatal-warnings
+      - run: flutter test
+      - run: dart run tool/check_versions.dart
+
+      - name: Verify the tag matches the package version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          if [ "$TAG_VERSION" != "$PUBSPEC_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match pubspec version $PUBSPEC_VERSION"
+            exit 1
+          fi
+          echo "Publishing $PUBSPEC_VERSION"
+
+      - name: Publish
+        run: flutter pub publish --force

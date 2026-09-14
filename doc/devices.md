@@ -24,21 +24,36 @@ Measured 2026-09-14, Android 15, One UI.
 | `isSeparating` when half-opened | true |
 | Displays enumerated | 1 — both panels are the same logical display |
 
-**Angle resolution: under investigation.** Three readings taken across the
-device's range came back as exactly `0.0`, `90.0` and `180.0`, and the device
-owner reports that slowly folding produces no intermediate values. That is
-consistent with a sensor reporting at detents rather than sweeping, but the
-diagnostic that would confirm it was itself broken at the time (see below), so
-this is not yet established.
+### Angle resolution: detents, confirmed
 
-Run the report tool and read `hingeDistinctValues` and `hingeContinuous` to
-settle it. A sweeping sensor passes a few dozen distinct values in a single
-slow fold; a detent-reporting one stays in single figures no matter how slowly
-the device is moved.
+```
+hingeDistinctValues: 3
+hingeValuesSeen:     [0.0, 90.0, 180.0]
+hingeContinuous:     false
+```
 
-**If it is confirmed as detent-reporting, that is a hardware property, not a
-bug** — and it matters, because it means continuous angle-driven effects
-cannot be built on this device. Posture-driven layout is unaffected.
+Measured after folding the device slowly through its full range repeatedly.
+**This sensor does not sweep.** It reports three positions and nothing in
+between, no matter how slowly the device is moved.
+
+This is a hardware property, not a bug, and it has a real consequence:
+**continuous angle-driven effects cannot be built on this device.** An effect
+that maps hinge angle onto a slider, a volume curve or a parallax has three
+states here. Posture-driven layout is entirely unaffected — `flat`,
+`tabletop`, `book` and `flipClosed` all work exactly as intended.
+
+Shipped as a quirk, so every app on this hardware gets the answer without
+having to discover it:
+
+```dart
+'samsung/sm-f731n': HingeQuirk(
+  range: HingeAngleRange.zeroTo180,
+  resolution: HingeResolution.detents,
+  detentValues: [0, 90, 180],
+),
+```
+
+Check `hinge.supportsContinuousEffects` before building an angle effect.
 
 ### Why the first measurement was wrong
 

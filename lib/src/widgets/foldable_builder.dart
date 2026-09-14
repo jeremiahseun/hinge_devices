@@ -63,8 +63,7 @@ class Foldable extends StatelessWidget {
   /// Returning a rigid device rather than throwing is deliberate: a missing
   /// scope should degrade to "this device does not fold", never crash.
   static FoldableState of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<_FoldableScope>();
+    final scope = context.dependOnInheritedWidgetOfExactType<_FoldableScope>();
     return scope?.state ?? FoldableState.rigid;
   }
 

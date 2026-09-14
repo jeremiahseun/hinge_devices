@@ -66,8 +66,7 @@ class FoldableDisplayFeature {
       other.orientation == orientation;
 
   @override
-  int get hashCode =>
-      Object.hash(bounds, isSeparating, occlusion, orientation);
+  int get hashCode => Object.hash(bounds, isSeparating, occlusion, orientation);
 
   @override
   String toString() =>
@@ -107,7 +106,8 @@ class DisplayInfo {
       listEquals(other.features, features);
 
   @override
-  int get hashCode => Object.hash(active, logicalSize, Object.hashAll(features));
+  int get hashCode =>
+      Object.hash(active, logicalSize, Object.hashAll(features));
 
   @override
   String toString() =>

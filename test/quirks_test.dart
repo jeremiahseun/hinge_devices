@@ -86,7 +86,55 @@ void main() {
     });
 
     test('a null manufacturer is safe', () {
-      expect(FoldableQuirks.lookup(null, null).range, HingeAngleRange.zeroTo180);
+      expect(
+          FoldableQuirks.lookup(null, null).range, HingeAngleRange.zeroTo180);
+    });
+
+    test('shipped entries are found without registration', () {
+      // Measured on hardware: the Z Flip 5 reports exactly three values.
+      final quirk = FoldableQuirks.lookup('samsung', 'SM-F731N');
+      expect(quirk.resolution, HingeResolution.detents);
+      expect(quirk.detentValues, <double>[0, 90, 180]);
+    });
+
+    test('a runtime registration overrides a shipped entry', () {
+      // An app must be able to correct a bad entry without waiting for us.
+      FoldableQuirks.register(
+        'samsung/sm-f731n',
+        const HingeQuirk(
+          range: HingeAngleRange.zeroTo180,
+          resolution: HingeResolution.continuous,
+        ),
+      );
+      expect(
+        FoldableQuirks.lookup('samsung', 'SM-F731N').resolution,
+        HingeResolution.continuous,
+      );
+    });
+
+    test('an unknown device does not claim to be continuous', () {
+      // Assuming a smooth sweep and being wrong produces an effect that
+      // visibly snaps, which is worse than not offering the effect.
+      expect(
+        FoldableQuirks.lookup('nothing', 'phone-3').resolution,
+        HingeResolution.unknown,
+      );
+    });
+  });
+
+  group('resolution guides effect decisions', () {
+    test('only a continuous hinge supports continuous effects', () {
+      const continuous = Hinge(resolution: HingeResolution.continuous);
+      const detents = Hinge(resolution: HingeResolution.detents);
+      const unknown = Hinge();
+
+      expect(continuous.supportsContinuousEffects, isTrue);
+      expect(detents.supportsContinuousEffects, isFalse);
+      expect(
+        unknown.supportsContinuousEffects,
+        isFalse,
+        reason: 'unknown must not be optimistic',
+      );
     });
   });
 }

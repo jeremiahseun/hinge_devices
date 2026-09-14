@@ -48,8 +48,7 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             tooltip: 'Posture simulator',
             icon: Icon(_showSimulator ? Icons.science : Icons.science_outlined),
-            onPressed: () =>
-                setState(() => _showSimulator = !_showSimulator),
+            onPressed: () => setState(() => _showSimulator = !_showSimulator),
           ),
         ],
       ),

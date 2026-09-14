@@ -1,13 +1,18 @@
 # foldable_runtime
 
+[![pub package](https://img.shields.io/pub/v/foldable_runtime.svg)](https://pub.dev/packages/foldable_runtime)
+[![pub points](https://img.shields.io/pub/points/foldable_runtime)](https://pub.dev/packages/foldable_runtime/score)
+[![CI](https://github.com/jeremiahseun/hinge_devices/actions/workflows/ci.yml/badge.svg)](https://github.com/jeremiahseun/hinge_devices/actions/workflows/ci.yml)
+[![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
+
 A unified posture, hinge and display model for foldable devices.
 
 Posture-first, capability-driven, and safe to add to any app — on a device that
 doesn't fold, this package reports a rigid device and does nothing else.
 
-> **Status: v0.2 — Flutter + Android**, verified on a physical Galaxy Z Flip.
-> iOS (iPhone Duo) and React Native are on the roadmap. See [PRD.md](PRD.md)
-> for the full plan and the honest critique of it.
+> **Status: 0.3 — Flutter + Android**, validated on a physical Galaxy Z Flip 5
+> across five rounds of on-device testing. iOS (iPhone Duo) and React Native
+> are next. See [PRD.md](PRD.md) for the roadmap and its critique.
 
 ## Why this and not `MediaQuery.displayFeatures`
 
@@ -121,6 +126,33 @@ Angle updates are **opt-in** (`enableAngleUpdates()`, or `autoEnable: true`) and
 the sensor is unregistered when nothing is listening. It is the only part of
 this package that can measurably cost battery.
 
+### Check the resolution before you build an angle effect
+
+Nothing in Android's API says whether a hinge sensor sweeps through
+intermediate values or only fires at fixed positions, and no vendor documents
+it. **It varies by device, and it decides whether a continuous effect is
+buildable at all.**
+
+A Galaxy Z Flip 5 reports exactly three values — `0`, `90`, `180` — however
+slowly you fold it. An effect that maps hinge angle onto a slider has three
+states there, not a smooth range.
+
+```dart
+final hinge = Foldable.of(context).hinge;
+
+if (hinge.supportsContinuousEffects) {
+  return HingeAngleBuilder(autoEnable: true, builder: ...);
+}
+// Fall back to posture: it is meaningful on every foldable.
+return FoldableBuilder(builder: ...);
+```
+
+`hinge.resolution` is `continuous`, `detents` or `unknown`, sourced from a
+quirks table measured on real hardware. **`unknown` is not optimistic** —
+assuming a smooth sweep and being wrong produces an effect that visibly snaps,
+which is worse than not offering it. See [doc/devices.md](doc/devices.md) for
+what has been measured, and please add your device.
+
 ## Develop without a foldable
 
 ```dart
@@ -223,6 +255,31 @@ tool/report_device.dart` and paste the output into an issue.
   mistake in this category.
 - **A missing sensor is `null`, never `0`.** `0` means "fully closed", which is
   a very different claim from "we don't know".
+
+## Versioning
+
+Major and minor are shared with the forthcoming React Native package, so one
+version number describes one API on both frameworks; patch is independent. Pin
+a minor:
+
+```yaml
+foldable_runtime: ^0.3.0
+```
+
+The package is pre-1.0 while iOS and React Native are unbuilt, and `0.x` minor
+bumps may break API — they have, more than once, because real hardware keeps
+teaching us things. See [VERSIONING.md](VERSIONING.md).
+
+## Contributing
+
+The most valuable contribution is **a device report, not code**. Four of the
+bugs fixed so far were found by running the example on one real Galaxy Z Flip.
+
+```bash
+flutter run -t tool/report_device.dart
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
