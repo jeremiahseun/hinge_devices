@@ -1,16 +1,32 @@
 name: CI
 
 on:
+  # Only main. Every other branch is covered by `pull_request`, which tests
+  # the merge result rather than the branch head — a better signal anyway.
+  #
+  # `branches: ["**"]` here meant a branch with an open PR fired both events,
+  # so every push ran the whole matrix twice: double the minutes, and two
+  # conflicting sets of check notifications for one commit.
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
+# Supersede in-flight runs for the same ref, so pushing a fix does not leave
+# the previous run burning a runner and reporting a failure that is already
+# obsolete.
+#
+# Never on main: each commit there is the release candidate, and cancelling
+# one because the next landed would leave a merge with no verified build.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 # A published package's guarantees are only as good as what CI enforces.
 # Everything this repo claims — formatting, zero analyzer issues, green tests,
 # versions in step across ecosystems, one shared Android codebase, and a
-# pub.dev score of 160 — is checked here on every push, so none of it can
-# quietly rot.
+# pub.dev score of 160 — is checked here on every pull request and on every
+# commit that reaches main, so none of it can quietly rot.
 
 jobs:
   contracts:
