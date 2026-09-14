@@ -30,15 +30,21 @@ class FoldableDevice {
         _defaultPlatform(),
       );
 
-  /// Replaces the platform implementation. Test-only.
-  @visibleForTesting
+  /// Replaces the platform implementation.
+  ///
+  /// Part of the public testing surface — `package:hinge_devices/testing.dart`
+  /// and your own tests both call it. Deliberately *not* `@visibleForTesting`:
+  /// that annotation means "reachable only from `test/`", and a package that
+  /// ships a testing library necessarily calls it from `lib/`.
   static void setPlatformForTesting(HingeDevicesPlatform platform) {
     _instance?.dispose();
     _instance = FoldableDevice._(platform);
   }
 
-  /// Resets the singleton. Test-only.
-  @visibleForTesting
+  /// Resets the singleton, dropping any platform subscription.
+  ///
+  /// Call from `tearDown`. Public for the same reason as
+  /// [setPlatformForTesting].
   static void resetForTesting() {
     _instance?.dispose();
     _instance = null;
@@ -92,7 +98,9 @@ class FoldableDevice {
   bool get angleUpdatesEnabled => _angleSubscribers > 0;
 
   /// How many callers currently hold an angle-update request.
-  @visibleForTesting
+  ///
+  /// Public so a debug menu can show it: a stuck count is the symptom of an
+  /// unbalanced [enableAngleUpdates]/[disableAngleUpdates] pair.
   int get angleSubscriberCount => _angleSubscribers;
 
   /// Every state change, deduplicated on layout-relevant fields.

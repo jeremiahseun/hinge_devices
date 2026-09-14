@@ -12,7 +12,16 @@ import 'package:hinge_devices/hinge_devices.dart';
 /// the other fails here or there, rather than silently shipping two products
 /// that disagree about what `tabletop` means.
 void main() {
-  final file = File('spec/posture_vectors.json');
+  // The vectors live at the repo root, shared with the React Native package.
+  // Tests run from the Flutter package directory, so look one level up first
+  // and fall back for anyone running from the repo root.
+  final file = [
+    File('../spec/posture_vectors.json'),
+    File('spec/posture_vectors.json'),
+  ].firstWhere(
+    (candidate) => candidate.existsSync(),
+    orElse: () => File('../spec/posture_vectors.json'),
+  );
 
   test('the shared vector file exists and is well formed', () {
     expect(

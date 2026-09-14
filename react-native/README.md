@@ -142,7 +142,7 @@ cross-platform app today is safe.
   derivation, normalisation and deduplication happen in TS, so the rules are
   identical to the Dart implementation and testable without a device.
 - **The Android hardware code is shared with the Flutter package.** The hinge
-  sensor, window observer and display source live in `shared/android/` and are
+  sensor, window observer and display source live in `core-android/` and are
   vendored into both; CI fails if the copies drift. A bug found on real
   hardware is fixed once.
 - **A closed angle beats the folding feature; everything else is the

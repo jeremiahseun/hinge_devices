@@ -9,24 +9,24 @@
 // both frameworks at once.
 //
 // Why vendoring and not a Maven artifact: a published package must be
-// self-contained — the pub.dev archive ships only its own android/ folder,
-// and the npm tarball only its own. A shared Maven Central artifact is the
+// self-contained — the pub.dev archive ships only flutter/android/, and the
+// npm tarball only react-native/android/. A shared Maven Central artifact is the
 // textbook answer and needs a signing pipeline; this gets the same guarantee
 // today, because --check runs in CI and drift fails the build.
 import 'dart:io';
 
-const _sharedRoot = 'shared/android/src/main/kotlin';
+const _sharedRoot = 'core-android/src/main/kotlin';
 
 /// Where the shared Kotlin is vendored, per package.
 const _targets = <String, String>{
-  'flutter': 'android/src/main/kotlin',
+  'flutter': 'flutter/android/src/main/kotlin',
   'react-native': 'react-native/android/src/main/kotlin',
 };
 
 const _banner = '''
 // GENERATED FILE — DO NOT EDIT.
 //
-// Vendored from shared/android/. Edit the file there, then run:
+// Vendored from core-android/. Edit the file there, then run:
 //     dart run tool/sync_shared.dart
 ''';
 
@@ -88,7 +88,7 @@ void main(List<String> args) {
       stdout.writeln('  • $problem');
     }
     stdout.writeln(
-      '\nEdit shared/android/, then run: dart run tool/sync_shared.dart',
+      '\nEdit core-android/, then run: dart run tool/sync_shared.dart',
     );
     exitCode = 1;
     return;

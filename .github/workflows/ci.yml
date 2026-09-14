@@ -7,13 +7,36 @@ on:
   workflow_dispatch:
 
 # A published package's guarantees are only as good as what CI enforces.
-# Everything this repo claims — formatting, zero analyzer issues, a green test
-# suite, versions in step across packages, and a pub.dev score of 160 — is
-# checked here on every push, so none of it can quietly rot.
+# Everything this repo claims — formatting, zero analyzer issues, green tests,
+# versions in step across ecosystems, one shared Android codebase, and a
+# pub.dev score of 160 — is checked here on every push, so none of it can
+# quietly rot.
+
 jobs:
-  flutter:
-    name: Analyze, test and score
+  contracts:
+    name: Cross-package contracts
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      # These two run before anything else: they are cheap, and they catch the
+      # failure modes that are invisible inside a single package.
+      - name: Versions are in step across pub.dev and npm
+        run: dart run tool/check_versions.dart
+
+      - name: The shared Android code has not drifted between packages
+        run: dart run tool/sync_shared.dart --check
+
+  flutter:
+    name: Flutter — analyze, test and score
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter
     steps:
       - uses: actions/checkout@v4
 
@@ -26,22 +49,13 @@ jobs:
         run: flutter pub get
 
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed lib bin test tool example/lib example/tool
+        run: dart format --output=none --set-exit-if-changed lib bin test example/lib example/tool
 
       - name: Analyze
         run: flutter analyze --fatal-infos --fatal-warnings
 
       - name: Test
         run: flutter test
-
-      - name: Check package versions are in step
-        run: dart run tool/check_versions.dart
-
-      # The hinge sensor, window observer and display source are one codebase
-      # vendored into both packages. Drift here would mean a hardware fix
-      # landing in one framework and not the other.
-      - name: Check the shared Kotlin has not drifted
-        run: dart run tool/sync_shared.dart --check
 
       - name: Lint the example app's manifest for foldable continuity
         run: dart run bin/check_manifest.dart example/android/app/src/main/AndroidManifest.xml
@@ -52,12 +66,12 @@ jobs:
       - name: Score with pana
         run: |
           flutter pub global activate pana
-          # Fail the build below a perfect score. Every deduction pana reports
-          # is something a user of this package would notice.
+          # Fail below a perfect score. Every deduction pana reports is
+          # something a user of this package would notice.
           flutter pub global run pana --no-warning --exit-code-threshold 0 .
 
   android:
-    name: Build the Android plugin
+    name: Flutter — build the Android plugin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,10 +86,12 @@ jobs:
           channel: stable
           cache: true
 
+      - uses: gradle/actions/setup-gradle@v4
+
       # The Kotlin is the half of this package that Dart tests cannot reach,
       # so it gets compiled on every push.
       - name: Build the example APK
-        working-directory: example
+        working-directory: flutter/example
         run: flutter build apk --debug
 
   react-native:
@@ -107,10 +123,10 @@ jobs:
   conformance:
     name: Both implementations agree
     runs-on: ubuntu-latest
-    # The whole promise of this package is that posture means the same thing
-    # on both frameworks. spec/posture_vectors.json is that promise written
-    # down, and these two jobs are what enforce it — a rule changed in one
-    # language and not the other fails here.
-    needs: [flutter, react-native]
+    # The whole promise of this repo is that posture means the same thing on
+    # both frameworks. spec/posture_vectors.json is that promise written down,
+    # and the two test jobs above are what enforce it — a rule changed in one
+    # language and not the other fails there, not here.
+    needs: [contracts, flutter, react-native]
     steps:
       - run: echo "Dart and TypeScript both passed spec/posture_vectors.json."

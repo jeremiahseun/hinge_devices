@@ -16,7 +16,7 @@ both frameworks. See [VERSIONING.md](../VERSIONING.md).
 - `resolvePosture` and `hingeStatusFor`, verified against
   `spec/posture_vectors.json` — the same vectors the Dart package runs
 - Android TurboModule over Jetpack WindowManager and `TYPE_HINGE_ANGLE`,
-  sharing its hardware sources with the Flutter plugin via `shared/android/`
+  sharing its hardware sources with the Flutter plugin via `core-android/`
 - Angle updates are opt-in and reference counted, so one component unmounting
   cannot cut the sensor out from under another
 - `src/testing.ts` — `setTestPosture`, `stateFor`, `resetTestDevice`

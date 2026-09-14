@@ -8,6 +8,11 @@ analyzer:
     # A public API without docs is a bug in a package whose whole value is its
     # API, so this is an error rather than a hint.
     public_member_api_docs: error
+  # Added by `flutter analyze` on 3.47+. Committed rather than regenerated, so
+  # CI does not rewrite a tracked file on every run.
+  exclude:
+    - build/**
+    - android/**
 
 linter:
   rules:

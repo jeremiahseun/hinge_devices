@@ -1,16 +1,25 @@
+# Build output
 .dart_tool/
 .packages
 build/
+**/build/
 pubspec.lock
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Gradle. Path-agnostic so moving a package does not silently start tracking
+# build artefacts again.
+**/.gradle/
+**/local.properties
+**/gradlew
+**/gradlew.bat
+**/gradle/wrapper/gradle-wrapper.jar
+
+# Node
+node_modules/
+*.tgz
+
+# Editors
 *.iml
 .idea/
 .vscode/
-/android/.gradle
-android/.gradle/
-android/local.properties
-example/android/local.properties
-
-# Vendored from shared/ by tool/sync_shared.dart. CI verifies they match.
-# Committed on purpose: a published package must be self-contained.

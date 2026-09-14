@@ -11,8 +11,8 @@ far were found by running the app on one real Galaxy Z Flip.
 
 ```bash
 git clone https://github.com/jeremiahseun/hinge_devices
-cd hinge_devices
-cd example && flutter run -t tool/report_device.dart
+cd hinge_devices/flutter/example
+flutter run -t tool/report_device.dart
 ```
 
 Fold the device slowly through its whole range with the report open, then open
@@ -31,19 +31,45 @@ wrong. See `doc/devices.md` for the entries we have.
 
 ## Code
 
+The repository holds three things: the shared Android code, and one package
+per framework.
+
+| Folder | What it is |
+|---|---|
+| `core-android/` | Android hardware code. **Edit here**, never in a package. |
+| `flutter/` | The pub.dev package |
+| `react-native/` | The npm package |
+| `spec/` | Conformance vectors and the shared version |
+
 ```bash
-flutter pub get
-flutter test
-flutter analyze
-dart format lib test tool example/lib
+# Flutter
+cd flutter
+flutter pub get && flutter test && flutter analyze
+dart format lib bin test example/lib example/tool
+
+# React Native
+cd react-native
+npm ci && npm run typecheck && npm test
+
+# Cross-package contracts, from the repo root
+dart run tool/check_versions.dart
+dart run tool/sync_shared.dart --check
 ```
 
-CI runs all of the above plus a version check, a publish dry run, a pana score
-floor of 160/160, and an Android build. Everything it checks is something a
-user of this package would notice, so please run them locally first.
+After editing anything in `core-android/`, run `dart run tool/sync_shared.dart`
+to vendor it into both packages. CI fails if you forget.
+
+CI runs all of the above plus a publish dry run, a pana score floor of
+160/160, an npm pack check, and an Android build. Everything it checks is
+something a user of this package would notice, so please run them locally
+first.
 
 ### House rules
 
+- **A posture rule change goes in `spec/posture_vectors.json` first.** Both
+  implementations run those vectors, so a rule changed in one language and not
+  the other fails the build instead of silently shipping two products that
+  disagree.
 - **A bug fix comes with a regression test.** Every bug found on real hardware
   has one, named for the symptom rather than the function.
 - **The platform reports facts; Dart derives meaning.** Native code sends a

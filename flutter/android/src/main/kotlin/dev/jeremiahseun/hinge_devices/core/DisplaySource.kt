@@ -1,6 +1,6 @@
 // GENERATED FILE — DO NOT EDIT.
 //
-// Vendored from shared/android/. Edit the file there, then run:
+// Vendored from core-android/. Edit the file there, then run:
 //     dart run tool/sync_shared.dart
 package dev.jeremiahseun.hinge_devices.core
 
