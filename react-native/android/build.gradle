@@ -5,7 +5,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.0'
+        // A consuming app's own AGP version wins over this; it is pinned
+        // only so the module builds standalone. Kept in step with the Flutter
+        // plugin so the two vendored copies of core-android compile against
+        // the same toolchain.
+        classpath 'com.android.tools.build:gradle:8.11.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
