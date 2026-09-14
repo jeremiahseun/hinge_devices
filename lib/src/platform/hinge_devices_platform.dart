@@ -8,9 +8,9 @@ import '../model/foldable_state.dart';
 /// Implementations must never throw: a device that reports nothing returns
 /// [FoldableState.rigid] and empty capabilities. Adding this package to an
 /// app must not be able to break it.
-abstract class FoldableRuntimePlatform {
+abstract class HingeDevicesPlatform {
   /// Const constructor for subclasses.
-  const FoldableRuntimePlatform();
+  const HingeDevicesPlatform();
 
   /// A stream of complete device states, as the platform produces them.
   ///

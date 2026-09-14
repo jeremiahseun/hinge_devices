@@ -1,4 +1,4 @@
-name: foldable_runtime
+name: hinge_devices
 description: A unified posture, hinge and display model for foldable devices. Posture-first, capability-driven, and safe to add to any app.
 version: 0.3.0
 repository: https://github.com/jeremiahseun/hinge_devices
@@ -34,8 +34,8 @@ flutter:
   plugin:
     platforms:
       android:
-        package: dev.jeremiahseun.foldable_runtime
-        pluginClass: FoldableRuntimePlugin
+        package: dev.jeremiahseun.hinge_devices
+        pluginClass: HingeDevicesPlugin
       # Dart-only implementations. These platforms report a rigid device, so
       # adding this package to a multi-platform app is always safe. Declaring
       # them is what stops pub.dev listing the package as Android-only, which
@@ -43,10 +43,10 @@ flutter:
       #
       # iOS gains a real implementation in 0.4 (iPhone Duo).
       ios:
-        dartPluginClass: FoldableRuntimeDartPlugin
+        dartPluginClass: HingeDevicesDartPlugin
       macos:
-        dartPluginClass: FoldableRuntimeDartPlugin
+        dartPluginClass: HingeDevicesDartPlugin
       windows:
-        dartPluginClass: FoldableRuntimeDartPlugin
+        dartPluginClass: HingeDevicesDartPlugin
       linux:
-        dartPluginClass: FoldableRuntimeDartPlugin
+        dartPluginClass: HingeDevicesDartPlugin

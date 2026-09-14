@@ -6,9 +6,9 @@ import 'model/capabilities.dart';
 import 'model/fold_posture.dart';
 import 'model/foldable_state.dart';
 import 'model/posture_thresholds.dart';
-import 'platform/foldable_runtime_platform.dart';
-import 'platform/method_channel_foldable_runtime.dart';
-import 'platform/unsupported_foldable_runtime.dart';
+import 'platform/hinge_devices_platform.dart';
+import 'platform/method_channel_hinge_devices.dart';
+import 'platform/unsupported_hinge_devices.dart';
 
 /// The entry point to the foldable runtime.
 ///
@@ -32,7 +32,7 @@ class FoldableDevice {
 
   /// Replaces the platform implementation. Test-only.
   @visibleForTesting
-  static void setPlatformForTesting(FoldableRuntimePlatform platform) {
+  static void setPlatformForTesting(HingeDevicesPlatform platform) {
     _instance?.dispose();
     _instance = FoldableDevice._(platform);
   }
@@ -44,14 +44,14 @@ class FoldableDevice {
     _instance = null;
   }
 
-  static FoldableRuntimePlatform _defaultPlatform() {
+  static HingeDevicesPlatform _defaultPlatform() {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return MethodChannelFoldableRuntime();
+      return MethodChannelHingeDevices();
     }
-    return const UnsupportedFoldableRuntime();
+    return const UnsupportedHingeDevices();
   }
 
-  final FoldableRuntimePlatform _platform;
+  final HingeDevicesPlatform _platform;
 
   final StreamController<FoldableState> _controller =
       StreamController<FoldableState>.broadcast();
@@ -190,8 +190,8 @@ class FoldableDevice {
     _instance?.dispose();
     _instance = FoldableDevice._(
       defaultTargetPlatform == TargetPlatform.android
-          ? MethodChannelFoldableRuntime(thresholds: thresholds)
-          : const UnsupportedFoldableRuntime(),
+          ? MethodChannelHingeDevices(thresholds: thresholds)
+          : const UnsupportedHingeDevices(),
     );
   }
 
@@ -208,7 +208,7 @@ class FoldableDevice {
         _controller.add(state);
       },
       onError: (Object error) {
-        debugPrint('foldable_runtime: $error');
+        debugPrint('hinge_devices: $error');
       },
     );
   }

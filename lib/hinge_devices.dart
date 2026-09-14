@@ -3,7 +3,7 @@
 /// Start with [FoldableDevice.instance] or wrap your app in [Foldable] and
 /// read state with `Foldable.of(context)`.
 ///
-/// Hinge-angle effects live in `package:foldable_runtime/effects.dart` — they
+/// Hinge-angle effects live in `package:hinge_devices/effects.dart` — they
 /// are a separate import because angle is an effects signal, not a layout one.
 library;
 
@@ -18,6 +18,6 @@ export 'src/model/posture_resolver.dart'
 export 'src/model/posture_thresholds.dart';
 export 'src/model/quirks.dart';
 export 'src/platform/dart_plugin_registrant.dart';
-export 'src/platform/foldable_runtime_platform.dart';
-export 'src/platform/unsupported_foldable_runtime.dart';
+export 'src/platform/hinge_devices_platform.dart';
+export 'src/platform/unsupported_hinge_devices.dart';
 export 'src/widgets/foldable_builder.dart';

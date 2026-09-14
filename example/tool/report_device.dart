@@ -13,7 +13,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:foldable_runtime/foldable_runtime.dart';
+import 'package:hinge_devices/hinge_devices.dart';
 
 void main() {
   // Run the sensor at the effects rate so the report reflects the best the
@@ -74,7 +74,7 @@ class _ReportPageState extends State<_ReportPage> {
 
   String _report(FoldableState state) {
     final buffer = StringBuffer()
-      ..writeln('### foldable_runtime device report')
+      ..writeln('### hinge_devices device report')
       ..writeln()
       ..writeln('posture: ${state.posture.name} (${state.posture.coarse.name})')
       ..writeln('raw angle: ${state.hinge.rawAngle}')

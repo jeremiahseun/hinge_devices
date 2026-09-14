@@ -1,4 +1,4 @@
-import 'foldable_runtime_platform.dart';
+import 'hinge_devices_platform.dart';
 
 /// The Dart-only plugin implementation used on every platform without native
 /// foldable support.
@@ -9,11 +9,11 @@ import 'foldable_runtime_platform.dart';
 /// filters it out — even though adding it to that app is completely safe and
 /// reports a rigid device.
 ///
-/// [registerWith] is intentionally empty: [FoldableRuntimePlatform] selects
-/// [UnsupportedFoldableRuntime] by target platform already, so there is
+/// [registerWith] is intentionally empty: [HingeDevicesPlatform] selects
+/// [UnsupportedHingeDevices] by target platform already, so there is
 /// nothing to wire up. It exists because Flutter's tooling requires a
 /// registrant with this shape.
-class FoldableRuntimeDartPlugin {
+class HingeDevicesDartPlugin {
   /// Called by Flutter's generated plugin registrant.
   static void registerWith() {
     // Nothing to register. See the class docs.

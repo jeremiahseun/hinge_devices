@@ -1,4 +1,4 @@
-package dev.jeremiahseun.foldable_runtime
+package dev.jeremiahseun.hinge_devices
 
 import android.app.Activity
 import androidx.window.layout.FoldingFeature

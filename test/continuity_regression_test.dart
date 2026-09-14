@@ -1,6 +1,6 @@
 import 'package:flutter/painting.dart' show Axis;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foldable_runtime/foldable_runtime.dart';
+import 'package:hinge_devices/hinge_devices.dart';
 
 /// Regression tests for the two ways posture has gone wrong on a physical
 /// Galaxy Z Flip.

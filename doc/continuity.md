@@ -7,7 +7,7 @@ survives them is decided by your manifest — not by this package.
 
 This is worth being blunt about: there is no "continuity API". Vendor
 documentation that talks about app continuity is describing configuration and
-OS behaviour. `foldable_runtime` tells you what posture you are in; keeping
+OS behaviour. `hinge_devices` tells you what posture you are in; keeping
 your state across the transition is your manifest's job.
 
 ## The three settings that matter
@@ -43,13 +43,13 @@ on the new display.
 ## Check your manifest
 
 ```bash
-dart run foldable_runtime:check_manifest
+dart run hinge_devices:check_manifest
 ```
 
 Or from this repo:
 
 ```bash
-dart run foldable_runtime:check_manifest path/to/AndroidManifest.xml
+dart run hinge_devices:check_manifest path/to/AndroidManifest.xml
 ```
 
 ## What still gets destroyed

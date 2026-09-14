@@ -1,6 +1,9 @@
 ## 0.3.0
 
-First public release.
+First public release, as `hinge_devices`.
+
+The same name ships to pub.dev and npm, so `dart pub add hinge_devices` and
+`npm i hinge_devices` are the same product rather than two.
 
 Flutter + Android, validated on a physical Samsung Galaxy Z Flip 5 across five
 rounds of on-device testing. Every bug that testing found is fixed and covered
@@ -127,7 +130,7 @@ Fixes two bugs found on a physical Galaxy Z Flip, plus the v0.2 milestone.
 
 - Cover and outer display detection via `DisplayManager`, populating
   `capabilities.outerDisplay` and `display.active`
-- `package:foldable_runtime/testing.dart` — `FoldableTestPlatform`,
+- `package:hinge_devices/testing.dart` — `FoldableTestPlatform`,
   `installFoldableTestPlatform`, `pumpFoldable`, `pumpFoldableState`,
   `forEachPosture`
 - `FoldableDevice.diagnostics` for device reports

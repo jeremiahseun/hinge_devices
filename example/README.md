@@ -1,4 +1,4 @@
-# foldable_runtime_example
+# hinge_devices_example
 
 A new Flutter project.
 

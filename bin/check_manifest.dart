@@ -2,10 +2,10 @@
 // needs.
 //
 // Shipped as an executable of the package, so apps that depend on
-// foldable_runtime can lint their own manifest:
+// hinge_devices can lint their own manifest:
 //
-//   dart run foldable_runtime:check_manifest
-//   dart run foldable_runtime:check_manifest path/to/AndroidManifest.xml
+//   dart run hinge_devices:check_manifest
+//   dart run hinge_devices:check_manifest path/to/AndroidManifest.xml
 //
 // Continuity is configuration, not an API — see doc/continuity.md. This is a
 // lint, not a guarantee: it reads the manifest as text and reports what is

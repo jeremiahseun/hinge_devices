@@ -1,6 +1,6 @@
 # PRD — Foldable Device Runtime
 
-**Working package name:** `foldable_runtime` (Dart) / `@foldable/runtime` (npm)
+**Working package name:** `hinge_devices` (Dart) / `hinge_devices` (npm)
 **Repo:** `jeremiahseun/hinge_devices`
 **Owner:** Jeremiah Seun
 **Status:** Draft v1 — pre-implementation
@@ -204,7 +204,7 @@ FoldableBuilder(
 final posture = Foldable.of(context).posture;
 
 // Effects — deliberately separate import so it reads as an advanced tool
-import 'package:foldable_runtime/effects.dart';
+import 'package:hinge_devices/effects.dart';
 HingeAngleBuilder(builder: (ctx, angle) => Transform.rotate(...));
 ```
 
@@ -225,7 +225,7 @@ if (capabilities.sceneAccessory) { /* ... */ }
 TurboModule + JSI, New Architecture only. Supporting the old bridge doubles the work for a shrinking audience; RN 0.80+ is New Arch by default. State ships over JSI as a plain object; the angle stream uses a native event emitter with native-side throttling so JS never sees 200Hz.
 
 ### 6.3 Naming
-`FoldableDevice` reads well and matches the brief. `hinge_devices` as a repo name is fine; the **published package should be `foldable_runtime`** — "hinge" undersells it and buries it in search for "flutter foldable".
+`FoldableDevice` reads well and matches the brief. `hinge_devices` as a repo name is fine; the **published package should be `hinge_devices`** — "hinge" undersells it and buries it in search for "flutter foldable".
 
 ---
 
@@ -256,7 +256,7 @@ This is the differentiator; treat it as a P0 feature, not tooling.
 
 - **`FoldableDevice.debugOverride(FoldableState)`** — inject any state at runtime. Ships in the main package (not a separate `_test` package) so devs can wire a debug menu into their app.
 - **Emulator recipes** — documented `adb emu sensor set hinge_angle <deg>` and Android Studio foldable AVD profiles; scripts in `tool/`.
-- **Golden-test kit** — `foldable_runtime_test` package with `pumpFoldable(tester, posture: ...)` for widget tests across all seven postures.
+- **Golden-test kit** — `hinge_devices_test` package with `pumpFoldable(tester, posture: ...)` for widget tests across all seven postures.
 - **Duo simulator** notes for Xcode 27 once available to us.
 - **Device quirk contribution flow** — a one-command report (`flutter run tool/report_device.dart`) that dumps raw sensor and window info as a pasteable GitHub issue, so the quirks table is crowdsourced. We will never own every foldable; the community fills the matrix.
 

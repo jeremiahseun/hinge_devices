@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foldable_runtime/effects.dart';
-import 'package:foldable_runtime/foldable_runtime.dart';
+import 'package:hinge_devices/effects.dart';
+import 'package:hinge_devices/hinge_devices.dart';
 
 import 'fake_platform.dart';
 
 void main() {
-  late FakeFoldableRuntime fake;
+  late FakeHingeDevices fake;
 
   setUp(() {
-    fake = FakeFoldableRuntime();
+    fake = FakeHingeDevices();
     FoldableDevice.setPlatformForTesting(fake);
   });
 

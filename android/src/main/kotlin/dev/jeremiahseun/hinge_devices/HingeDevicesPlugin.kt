@@ -1,4 +1,4 @@
-package dev.jeremiahseun.foldable_runtime
+package dev.jeremiahseun.hinge_devices
 
 import android.app.Activity
 import android.content.Context
@@ -23,15 +23,15 @@ import io.flutter.plugin.common.MethodChannel.Result
  * all happen in Dart, so the rules are identical on every platform and
  * testable without hardware.
  */
-class FoldableRuntimePlugin :
+class HingeDevicesPlugin :
     FlutterPlugin,
     ActivityAware,
     MethodCallHandler,
     EventChannel.StreamHandler {
 
     private companion object {
-        const val METHOD_CHANNEL = "dev.jeremiahseun/foldable_runtime"
-        const val EVENT_CHANNEL = "dev.jeremiahseun/foldable_runtime/events"
+        const val METHOD_CHANNEL = "dev.jeremiahseun/hinge_devices"
+        const val EVENT_CHANNEL = "dev.jeremiahseun/hinge_devices/events"
         const val SPEC_VERSION = 1
     }
 
@@ -60,10 +60,10 @@ class FoldableRuntimePlugin :
         displays = DisplaySource(context)
 
         methodChannel = MethodChannel(binding.binaryMessenger, METHOD_CHANNEL).apply {
-            setMethodCallHandler(this@FoldableRuntimePlugin)
+            setMethodCallHandler(this@HingeDevicesPlugin)
         }
         eventChannel = EventChannel(binding.binaryMessenger, EVENT_CHANNEL).apply {
-            setStreamHandler(this@FoldableRuntimePlugin)
+            setStreamHandler(this@HingeDevicesPlugin)
         }
     }
 
@@ -197,7 +197,7 @@ class FoldableRuntimePlugin :
             buildAndSend()
         } catch (error: Throwable) {
             android.util.Log.w(
-                "foldable_runtime",
+                "hinge_devices",
                 "dropped a state update: ${error.message}",
             )
         }

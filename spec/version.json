@@ -1,13 +1,21 @@
 {
-  "$comment": "Single source of truth for release versions. See VERSIONING.md.",
+  "$comment": "Single source of truth for release versions. See VERSIONING.md. Both packages are named hinge_devices; the keys below name the ecosystem, because that is what tells them apart.",
   "specVersion": 1,
   "major": 0,
   "minor": 3,
   "packages": {
-    "foldable_runtime": {
+    "dart": {
+      "package": "hinge_devices",
       "ecosystem": "pub.dev",
       "manifest": "pubspec.yaml",
       "patch": 0
+    },
+    "react_native": {
+      "package": "hinge_devices",
+      "ecosystem": "npm",
+      "manifest": "react-native/package.json",
+      "patch": 0,
+      "pending": true
     }
   }
 }

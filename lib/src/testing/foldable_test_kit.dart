@@ -8,13 +8,13 @@ import '../model/display_info.dart';
 import '../model/fold_posture.dart';
 import '../model/foldable_state.dart';
 import '../model/hinge.dart';
-import '../platform/foldable_runtime_platform.dart';
+import '../platform/hinge_devices_platform.dart';
 
 /// A scriptable platform implementation for tests.
 ///
 /// Install it with [installFoldableTestPlatform], drive it with
 /// [FoldableTestPlatform.setPosture].
-class FoldableTestPlatform extends FoldableRuntimePlatform {
+class FoldableTestPlatform extends HingeDevicesPlatform {
   /// Creates a test platform with the given capabilities.
   FoldableTestPlatform({
     this.capabilityOverride = const FoldableCapabilities(

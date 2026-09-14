@@ -1,4 +1,4 @@
-package dev.jeremiahseun.foldable_runtime_example
+package dev.jeremiahseun.hinge_devices_example
 
 import io.flutter.embedding.android.FlutterActivity
 

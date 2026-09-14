@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:foldable_runtime/foldable_runtime.dart';
+import 'package:hinge_devices/hinge_devices.dart';
 
 /// An in-memory platform implementation for tests and the example app's
 /// simulator.
-class FakeFoldableRuntime extends FoldableRuntimePlatform {
-  FakeFoldableRuntime({this.capabilityResult = _defaultCapabilities});
+class FakeHingeDevices extends HingeDevicesPlatform {
+  FakeHingeDevices({this.capabilityResult = _defaultCapabilities});
 
   static const FoldableCapabilitiesResult _defaultCapabilities =
       FoldableCapabilitiesResult(

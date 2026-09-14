@@ -9,7 +9,7 @@ import '../model/hinge.dart';
 import '../model/posture_resolver.dart';
 import '../model/posture_thresholds.dart';
 import '../model/quirks.dart';
-import 'foldable_runtime_platform.dart';
+import 'hinge_devices_platform.dart';
 
 /// Decoded platform signals, before posture is derived.
 ///
@@ -32,21 +32,21 @@ class _PlatformSignals {
 }
 
 /// The Android implementation, over a method channel and an event channel.
-class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
+class MethodChannelHingeDevices extends HingeDevicesPlatform {
   /// Creates the channel-backed implementation.
-  MethodChannelFoldableRuntime({
+  MethodChannelHingeDevices({
     PostureThresholds thresholds = PostureThresholds.standard,
   }) : _resolver = PostureResolver(thresholds: thresholds);
 
   /// The method channel used for one-shot calls.
   @visibleForTesting
   static const MethodChannel methodChannel =
-      MethodChannel('dev.jeremiahseun/foldable_runtime');
+      MethodChannel('dev.jeremiahseun/hinge_devices');
 
   /// The event channel carrying device-state updates.
   @visibleForTesting
   static const EventChannel eventChannel =
-      EventChannel('dev.jeremiahseun/foldable_runtime/events');
+      EventChannel('dev.jeremiahseun/hinge_devices/events');
 
   final PostureResolver _resolver;
 
@@ -65,7 +65,7 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
         .map<FoldableState>(_decode)
         .handleError((Object error, StackTrace stack) {
       // A platform that stops reporting must not take the app down with it.
-      debugPrint('foldable_runtime: state stream error: $error');
+      debugPrint('hinge_devices: state stream error: $error');
     });
   }
 

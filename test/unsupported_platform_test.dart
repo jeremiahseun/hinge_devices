@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foldable_runtime/foldable_runtime.dart';
+import 'package:hinge_devices/hinge_devices.dart';
 
 void main() {
   // The single most important guarantee this package makes: adding it to an
   // app that will never run on a foldable must not be able to break anything.
   test('reports a rigid device and never emits', () async {
-    FoldableDevice.setPlatformForTesting(const UnsupportedFoldableRuntime());
+    FoldableDevice.setPlatformForTesting(const UnsupportedHingeDevices());
     addTearDown(FoldableDevice.resetForTesting);
 
     final device = FoldableDevice.instance;

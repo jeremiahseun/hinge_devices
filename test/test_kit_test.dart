@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:foldable_runtime/foldable_runtime.dart';
-import 'package:foldable_runtime/testing.dart';
+import 'package:hinge_devices/hinge_devices.dart';
+import 'package:hinge_devices/testing.dart';
 
 void main() {
   tearDown(FoldableDevice.resetForTesting);

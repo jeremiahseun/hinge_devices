@@ -1,7 +1,7 @@
-# foldable_runtime
+# hinge_devices
 
-[![pub package](https://img.shields.io/pub/v/foldable_runtime.svg)](https://pub.dev/packages/foldable_runtime)
-[![pub points](https://img.shields.io/pub/points/foldable_runtime)](https://pub.dev/packages/foldable_runtime/score)
+[![pub package](https://img.shields.io/pub/v/hinge_devices.svg)](https://pub.dev/packages/hinge_devices)
+[![pub points](https://img.shields.io/pub/points/hinge_devices)](https://pub.dev/packages/hinge_devices/score)
 [![CI](https://github.com/jeremiahseun/hinge_devices/actions/workflows/ci.yml/badge.svg)](https://github.com/jeremiahseun/hinge_devices/actions/workflows/ci.yml)
 [![License: BSD-3-Clause](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
 
@@ -19,7 +19,7 @@ doesn't fold, this package reports a rigid device and does nothing else.
 Flutter already tells you *where the fold is*. This tells you *what the device
 is doing* and *what it can do*:
 
-| | `displayFeatures` | `foldable_runtime` |
+| | `displayFeatures` | `hinge_devices` |
 |---|---|---|
 | Fold bounds | ✅ | ✅ |
 | Named posture (tabletop, book, closed) | ❌ | ✅ |
@@ -34,7 +34,7 @@ Use both. `displayFeatures` for avoiding the hinge, this for deciding the layout
 
 ```yaml
 dependencies:
-  foldable_runtime: ^0.1.0
+  hinge_devices: ^0.1.0
 ```
 
 ## Layout by posture
@@ -111,7 +111,7 @@ continuous angle thrashes at the threshold boundaries — that is what posture i
 for. Both Android's and Apple's own guidance says the same thing.
 
 ```dart
-import 'package:foldable_runtime/effects.dart';
+import 'package:hinge_devices/effects.dart';
 
 HingeAngleBuilder(
   autoEnable: true,
@@ -178,7 +178,7 @@ cd example && flutter run
 ## Test every posture
 
 ```dart
-import 'package:foldable_runtime/testing.dart';
+import 'package:hinge_devices/testing.dart';
 
 testWidgets('adapts to tabletop', (tester) async {
   final device = installFoldableTestPlatform();
@@ -200,7 +200,7 @@ Keeping state when the device opens is a manifest concern, not an API — there
 is no continuity call to make. Check yours:
 
 ```bash
-dart run foldable_runtime:check_manifest
+dart run hinge_devices:check_manifest
 ```
 
 See [doc/continuity.md](doc/continuity.md).
@@ -257,12 +257,12 @@ Own a foldable we haven't got an entry for? Run `example/tool/report_device.dart
 
 ## Versioning
 
-Major and minor are shared with the forthcoming React Native package, so one
-version number describes one API on both frameworks; patch is independent. Pin
-a minor:
+The same name ships to pub.dev and npm. Major and minor are shared across both,
+so one version number describes one API on both frameworks; patch is
+independent. Pin a minor:
 
 ```yaml
-foldable_runtime: ^0.3.0
+hinge_devices: ^0.3.0
 ```
 
 The package is pre-1.0 while iOS and React Native are unbuilt, and `0.x` minor

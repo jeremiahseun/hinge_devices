@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:foldable_runtime/effects.dart';
-import 'package:foldable_runtime/foldable_runtime.dart';
+import 'package:hinge_devices/effects.dart';
+import 'package:hinge_devices/hinge_devices.dart';
 
 void main() {
   runApp(const ExampleApp());
@@ -15,7 +15,7 @@ class ExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'foldable_runtime',
+      title: 'hinge_devices',
       theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
       darkTheme: ThemeData(
         colorSchemeSeed: Colors.indigo,

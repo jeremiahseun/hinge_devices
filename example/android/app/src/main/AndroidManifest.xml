@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="foldable_runtime_example"
+        android:label="hinge_devices_example"
         android:name="${applicationName}"
         android:resizeableActivity="true"
         android:icon="@mipmap/ic_launcher">

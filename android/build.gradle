@@ -1,4 +1,4 @@
-group 'dev.jeremiahseun.foldable_runtime'
+group 'dev.jeremiahseun.hinge_devices'
 version '0.1.0'
 
 buildscript {
@@ -24,7 +24,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace 'dev.jeremiahseun.foldable_runtime'
+    namespace 'dev.jeremiahseun.hinge_devices'
     compileSdk 35
 
     compileOptions {

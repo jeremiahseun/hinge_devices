@@ -26,7 +26,7 @@ example/ios/Pods/
 # and bin/.
 #
 # bin/ ships on purpose: it is how a consuming app runs
-# `dart run foldable_runtime:check_manifest` against its own manifest.
+# `dart run hinge_devices:check_manifest` against its own manifest.
 # tool/ does not: check_versions.dart maintains this repo, not anyone's app.
 .github/
 spec/

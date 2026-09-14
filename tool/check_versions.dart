@@ -2,7 +2,7 @@
 //
 //   dart run tool/check_versions.dart                      # verify (CI)
 //   dart run tool/check_versions.dart --set-minor 4        # shared bump
-//   dart run tool/check_versions.dart --set-patch foldable_runtime 1
+//   dart run tool/check_versions.dart --set-patch hinge_devices 1
 //
 // Major and minor are shared across every package so that one version number
 // describes one API on every framework. Patch is per package. See
@@ -61,6 +61,9 @@ class _Spec {
   Map<String, Object?> get packages =>
       json['packages']! as Map<String, Object?>;
 
+  bool _isPending(String name) =>
+      (packages[name]! as Map<String, Object?>)['pending'] == true;
+
   String versionOf(String package) {
     final entry = packages[package]! as Map<String, Object?>;
     return '$major.$minor.${entry['patch']}';
@@ -70,14 +73,33 @@ class _Spec {
   /// stopping at the first, so one CI run tells you everything to fix.
   bool verify() {
     final problems = <String>[];
+    final pendingNotes = <String>[];
 
     for (final name in packages.keys) {
       final entry = packages[name]! as Map<String, Object?>;
       final manifestPath = entry['manifest']! as String;
       final manifest = File(manifestPath);
 
+      // A package can be registered before it exists, so the version
+      // contract is visible from the day it is agreed rather than the day the
+      // code lands. Remove "pending" to start enforcing it.
+      final pending = entry['pending'] == true;
+
       if (!manifest.existsSync()) {
+        if (pending) {
+          pendingNotes.add('$name (${entry['package']}) reserved at '
+              '${versionOf(name)}, not built yet');
+          continue;
+        }
         problems.add('$name: no manifest at $manifestPath');
+        continue;
+      }
+
+      if (pending) {
+        problems.add(
+          '$name: $manifestPath now exists — remove "pending" from '
+          'spec/version.json so its version is enforced.',
+        );
         continue;
       }
 
@@ -96,9 +118,14 @@ class _Spec {
     }
 
     if (problems.isEmpty) {
-      final summary =
-          packages.keys.map((name) => '$name ${versionOf(name)}').join(', ');
+      final summary = packages.keys
+          .where((name) => !_isPending(name))
+          .map((name) => '$name ${versionOf(name)}')
+          .join(', ');
       stdout.writeln('Versions are in step: $summary');
+      for (final note in pendingNotes) {
+        stdout.writeln('  (pending) $note');
+      }
       return true;
     }
 
@@ -154,7 +181,10 @@ class _Spec {
     for (final name in packages.keys) {
       final entry = packages[name]! as Map<String, Object?>;
       final manifest = File(entry['manifest']! as String);
-      if (!manifest.existsSync()) continue;
+      if (!manifest.existsSync()) {
+        stdout.writeln('$name → ${versionOf(name)} (reserved, not built yet)');
+        continue;
+      }
 
       final version = versionOf(name);
       final ecosystem = entry['ecosystem']! as String;

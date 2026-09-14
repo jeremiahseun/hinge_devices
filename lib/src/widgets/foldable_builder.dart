@@ -18,7 +18,7 @@ import '../model/foldable_state.dart';
 /// ```
 ///
 /// It does *not* rebuild on hinge-angle changes. Use `HingeAngleBuilder` from
-/// `package:foldable_runtime/effects.dart` for those.
+/// `package:hinge_devices/effects.dart` for those.
 class FoldableBuilder extends StatelessWidget {
   /// Creates a posture-driven builder.
   const FoldableBuilder({
