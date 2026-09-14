@@ -11,3 +11,6 @@ pubspec.lock
 android/.gradle/
 android/local.properties
 example/android/local.properties
+
+# Vendored from shared/ by tool/sync_shared.dart. CI verifies they match.
+# Committed on purpose: a published package must be self-contained.

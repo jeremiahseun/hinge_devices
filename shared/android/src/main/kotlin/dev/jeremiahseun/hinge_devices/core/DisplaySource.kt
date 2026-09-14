@@ -1,4 +1,4 @@
-package dev.jeremiahseun.hinge_devices
+package dev.jeremiahseun.hinge_devices.core
 
 import android.app.Activity
 import android.content.Context
@@ -31,7 +31,7 @@ import android.view.Display
  * hinge angle, both of which are real APIs; a heuristic must not be able to
  * put a device on the wrong layout.
  */
-internal class DisplaySource(private val context: Context) {
+class DisplaySource(private val context: Context) {
 
     private val displayManager =
         context.getSystemService(Context.DISPLAY_SERVICE) as? DisplayManager

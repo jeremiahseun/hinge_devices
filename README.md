@@ -10,9 +10,12 @@ A unified posture, hinge and display model for foldable devices.
 Posture-first, capability-driven, and safe to add to any app — on a device that
 doesn't fold, this package reports a rigid device and does nothing else.
 
-> **Status: 0.3 — Flutter + Android**, validated on a physical Galaxy Z Flip 5
-> across five rounds of on-device testing. iOS (iPhone Duo) and React Native
-> are next. See [PRD.md](PRD.md) for the roadmap and its critique.
+> **Status: 0.3 — Flutter and React Native, Android.** Validated on a physical
+> Galaxy Z Flip 5 across five rounds of on-device testing. iOS (iPhone Duo) is
+> next. See [PRD.md](PRD.md) for the roadmap and its critique.
+>
+> **React Native users:** [`react-native/`](react-native/) — same name on npm,
+> same model, same version.
 
 ## Why this and not `MediaQuery.displayFeatures`
 
@@ -228,6 +231,23 @@ Own a foldable we haven't got an entry for? Run `example/tool/report_device.dart
 | Android 7–10 | ✅ | ❌ | folding feature only |
 | iOS | — | — | reports rigid; iPhone Duo support in v0.3 |
 | Web, desktop | — | — | reports rigid; safe to include |
+
+## One model, two frameworks
+
+`hinge_devices` ships to pub.dev for Flutter and npm for React Native. They
+are not ports of each other — they are two implementations of one
+specification, and the specification is executable:
+
+- [`spec/posture_vectors.json`](spec/posture_vectors.json) holds the
+  conformance vectors. **Both implementations run them in CI.** A posture rule
+  changed in one language and not the other fails the build, rather than
+  silently shipping two products that disagree about what `tabletop` means.
+- [`shared/android/`](shared/android/) holds the Android hardware code — the
+  hinge sensor, the window-layout observer, the display source. It is vendored
+  into both packages by `dart run tool/sync_shared.dart`, and CI fails on
+  drift. Every bug found on real hardware is fixed once, for both frameworks.
+- [`spec/version.json`](spec/version.json) keeps major and minor in step
+  across both ecosystems.
 
 ## Design notes
 

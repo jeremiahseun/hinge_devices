@@ -1,0 +1,154 @@
+{
+  "$comment": "Shared conformance vectors. Both the Dart and the TypeScript posture resolvers run these, so the two implementations cannot drift. Add a case here before fixing a bug in either language — if only one implementation is wrong, this file is what proves it.",
+  "specVersion": 1,
+  "thresholds": {
+    "closedAtOrBelow": 15,
+    "flatAtOrAbove": 165
+  },
+  "cases": [
+    {
+      "name": "no signals at all is unknown, never a default posture",
+      "given": {},
+      "expect": { "posture": "unknown", "status": "unknown", "coarse": "open" }
+    },
+    {
+      "name": "flat folding feature resolves to flat",
+      "given": { "featureState": "flat", "angle": 180 },
+      "expect": { "posture": "flat", "status": "fullyOpen", "coarse": "open" }
+    },
+    {
+      "name": "horizontal fold is tabletop",
+      "given": {
+        "featureState": "halfOpened",
+        "featureOrientation": "horizontal",
+        "angle": 90
+      },
+      "expect": {
+        "posture": "tabletop",
+        "status": "partiallyOpen",
+        "coarse": "halfOpen"
+      }
+    },
+    {
+      "name": "vertical fold is book",
+      "given": {
+        "featureState": "halfOpened",
+        "featureOrientation": "vertical",
+        "angle": 90
+      },
+      "expect": {
+        "posture": "book",
+        "status": "partiallyOpen",
+        "coarse": "halfOpen"
+      }
+    },
+    {
+      "name": "half opened without orientation stays unrefined",
+      "given": { "featureState": "halfOpened" },
+      "expect": {
+        "posture": "halfOpened",
+        "status": "unknown",
+        "coarse": "halfOpen"
+      }
+    },
+    {
+      "name": "a folding feature outranks an angle that disagrees",
+      "given": { "featureState": "flat", "angle": 120 },
+      "expect": { "posture": "flat", "status": "partiallyOpen", "coarse": "open" }
+    },
+    {
+      "name": "closed below the threshold",
+      "given": { "angle": 5 },
+      "expect": { "posture": "closed", "status": "closed", "coarse": "closed" }
+    },
+    {
+      "name": "flipClosed when the device has a cover display",
+      "given": { "angle": 5, "hasOuterDisplay": true },
+      "expect": { "posture": "flipClosed", "status": "closed", "coarse": "closed" }
+    },
+    {
+      "name": "Z Flip 5 on its Flex Window: a closed angle outranks a reported feature",
+      "given": {
+        "featureState": "flat",
+        "angle": 0,
+        "hasOuterDisplay": true
+      },
+      "expect": {
+        "posture": "flipClosed",
+        "status": "closed",
+        "coarse": "closed"
+      },
+      "note": "Measured on hardware. A Flip running on its cover screen still reports a folding feature; treating that as proof the device is open put a shut phone on its opened layout."
+    },
+    {
+      "name": "a cleared reading does not resolve to closed",
+      "given": { "featureState": "flat" },
+      "expect": { "posture": "flat", "status": "unknown", "coarse": "open" },
+      "note": "The sensor clears its reading when unregistered, so a stale angle arrives as null. Null must never mean closed, or an opened Flip sticks on its closed layout."
+    },
+    {
+      "name": "angle-only fallback: flat above the threshold",
+      "given": { "angle": 178 },
+      "expect": { "posture": "flat", "status": "fullyOpen", "coarse": "open" }
+    },
+    {
+      "name": "angle-only fallback: half opened in between",
+      "given": { "angle": 90 },
+      "expect": {
+        "posture": "halfOpened",
+        "status": "partiallyOpen",
+        "coarse": "halfOpen"
+      }
+    },
+    {
+      "name": "exactly on the closed boundary is closed",
+      "given": { "angle": 15 },
+      "expect": { "posture": "closed", "status": "closed", "coarse": "closed" }
+    },
+    {
+      "name": "just past the closed boundary is not",
+      "given": { "angle": 15.1 },
+      "expect": {
+        "posture": "halfOpened",
+        "status": "partiallyOpen",
+        "coarse": "halfOpen"
+      }
+    },
+    {
+      "name": "exactly on the flat boundary is flat",
+      "given": { "angle": 165 },
+      "expect": { "posture": "flat", "status": "fullyOpen", "coarse": "open" }
+    },
+    {
+      "name": "just before the flat boundary is not",
+      "given": { "angle": 164.9 },
+      "expect": {
+        "posture": "halfOpened",
+        "status": "partiallyOpen",
+        "coarse": "halfOpen"
+      }
+    },
+    {
+      "name": "Z Flip 5 detent: fully open",
+      "given": {
+        "featureState": "flat",
+        "featureOrientation": "horizontal",
+        "angle": 180
+      },
+      "expect": { "posture": "flat", "status": "fullyOpen", "coarse": "open" }
+    },
+    {
+      "name": "Z Flip 5 detent: Flex Mode",
+      "given": {
+        "featureState": "halfOpened",
+        "featureOrientation": "horizontal",
+        "angle": 90
+      },
+      "expect": {
+        "posture": "tabletop",
+        "status": "partiallyOpen",
+        "coarse": "halfOpen"
+      }
+    }
+  ]
+}

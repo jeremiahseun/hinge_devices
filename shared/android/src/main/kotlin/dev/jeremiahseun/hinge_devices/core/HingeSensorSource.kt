@@ -1,4 +1,4 @@
-package dev.jeremiahseun.hinge_devices
+package dev.jeremiahseun.hinge_devices.core
 
 import android.content.Context
 import android.hardware.Sensor
@@ -16,7 +16,7 @@ import android.os.Build
  * [SensorManager.SENSOR_DELAY_GAME]. Running at the fast rate all the time
  * would be the one part of this package that could be blamed for battery.
  */
-internal class HingeSensorSource(
+class HingeSensorSource(
     context: Context,
     private val onAngle: (Float?) -> Unit,
 ) : SensorEventListener {

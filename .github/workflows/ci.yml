@@ -37,6 +37,12 @@ jobs:
       - name: Check package versions are in step
         run: dart run tool/check_versions.dart
 
+      # The hinge sensor, window observer and display source are one codebase
+      # vendored into both packages. Drift here would mean a hardware fix
+      # landing in one framework and not the other.
+      - name: Check the shared Kotlin has not drifted
+        run: dart run tool/sync_shared.dart --check
+
       - name: Lint the example app's manifest for foldable continuity
         run: dart run bin/check_manifest.dart example/android/app/src/main/AndroidManifest.xml
 
@@ -71,3 +77,40 @@ jobs:
       - name: Build the example APK
         working-directory: example
         run: flutter build apk --debug
+
+  react-native:
+    name: React Native — typecheck and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: react-native
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: react-native/package-lock.json
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Verify the published tarball contents
+        run: npm pack --dry-run
+
+  conformance:
+    name: Both implementations agree
+    runs-on: ubuntu-latest
+    # The whole promise of this package is that posture means the same thing
+    # on both frameworks. spec/posture_vectors.json is that promise written
+    # down, and these two jobs are what enforce it — a rule changed in one
+    # language and not the other fails here.
+    needs: [flutter, react-native]
+    steps:
+      - run: echo "Dart and TypeScript both passed spec/posture_vectors.json."

@@ -1,4 +1,8 @@
-package dev.jeremiahseun.hinge_devices
+// GENERATED FILE — DO NOT EDIT.
+//
+// Vendored from shared/android/. Edit the file there, then run:
+//     dart run tool/sync_shared.dart
+package dev.jeremiahseun.hinge_devices.core
 
 import android.app.Activity
 import androidx.window.layout.FoldingFeature
@@ -19,7 +23,7 @@ import kotlinx.coroutines.launch
  * signals with independent availability, and a device may expose either one
  * without the other.
  */
-internal class WindowLayoutSource(
+class WindowLayoutSource(
     private val onLayout: (FoldingFeature?, Int, Int) -> Unit,
 ) {
     private var job: Job? = null

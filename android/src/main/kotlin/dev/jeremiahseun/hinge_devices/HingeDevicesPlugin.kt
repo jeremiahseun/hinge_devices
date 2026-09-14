@@ -6,6 +6,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.window.layout.FoldingFeature
+import dev.jeremiahseun.hinge_devices.core.DisplaySource
+import dev.jeremiahseun.hinge_devices.core.HingeSensorSource
+import dev.jeremiahseun.hinge_devices.core.WindowLayoutSource
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
