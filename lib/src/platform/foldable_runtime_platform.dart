@@ -21,6 +21,14 @@ abstract class FoldableRuntimePlatform {
   /// Reads capabilities once. Callers cache the result.
   Future<FoldableCapabilitiesResult> capabilities();
 
+  /// Reads live platform diagnostics.
+  ///
+  /// Separate from [capabilities] because capabilities are cached on first
+  /// read, and the useful diagnostics — how many readings the sensor has
+  /// delivered, how many distinct values it has ever produced — are all about
+  /// what has happened since.
+  Future<Map<String, Object?>> diagnostics() async => const <String, Object?>{};
+
   /// Turns the hinge-angle stream on or off.
   ///
   /// Angle updates are opt-in because they are the only part of this package

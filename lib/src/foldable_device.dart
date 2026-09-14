@@ -74,23 +74,19 @@ class FoldableDevice {
 
   /// The device's capabilities. Queried once and cached.
   Future<FoldableCapabilities> get capabilities =>
-      _capabilities ??= _platform.capabilities().then((result) {
-        _diagnostics = <String, Object?>{
-          'manufacturer': result.manufacturer,
-          'model': result.model,
-          ...result.diagnostics,
-        };
-        return result.capabilities;
-      });
+      _capabilities ??= _platform.capabilities().then((r) => r.capabilities);
 
-  Map<String, Object?> _diagnostics = const <String, Object?>{};
-
-  /// Platform values useful when diagnosing a device, available once
-  /// [capabilities] has resolved.
+  /// Reads live platform diagnostics.
   ///
-  /// Contents are platform-specific and not part of the stable API — this
+  /// Deliberately a call rather than a cached getter: the useful values — how
+  /// many readings the hinge sensor has delivered, how many distinct angles it
+  /// has ever produced, whether it sweeps or only reports at detents — are all
+  /// about what has happened since the app started. Reading them from the
+  /// capability snapshot reported zero forever.
+  ///
+  /// Contents are platform-specific and not part of the stable API. This
   /// exists so `tool/report_device.dart` can produce a useful bug report.
-  Map<String, Object?> get diagnostics => _diagnostics;
+  Future<Map<String, Object?>> diagnostics() => _platform.diagnostics();
 
   /// Whether angle updates are currently streaming.
   bool get angleUpdatesEnabled => _angleSubscribers > 0;

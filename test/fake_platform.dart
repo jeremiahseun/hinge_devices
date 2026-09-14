@@ -38,6 +38,10 @@ class FakeFoldableRuntime extends FoldableRuntimePlatform {
   }
 
   @override
+  Future<Map<String, Object?>> diagnostics() async =>
+      const <String, Object?>{'fake': true};
+
+  @override
   Future<void> setAngleUpdatesEnabled(bool enabled) async {
     angleEnabled = enabled;
   }

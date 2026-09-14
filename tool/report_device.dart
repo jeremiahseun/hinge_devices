@@ -3,8 +3,15 @@
 //
 //   flutter run -t tool/report_device.dart
 //
+// Fold the device slowly through its whole range while this is open. The
+// numbers that matter are the distinct-value and continuity lines: no vendor
+// documents whether a hinge sensor sweeps or only reports at detents, and the
+// answer decides whether angle-driven effects are worth building on a device.
+//
 // We will never own every foldable ever made. This is how the quirks table
 // gets filled in by the people who do.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:foldable_runtime/foldable_runtime.dart';
 
@@ -20,14 +27,46 @@ class _ReportApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Device report')),
-        body: FoldableBuilder(
-          builder: (context, state) => SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: SelectableText(_report(state)),
-          ),
+    return const MaterialApp(home: _ReportPage());
+  }
+}
+
+class _ReportPage extends StatefulWidget {
+  const _ReportPage();
+
+  @override
+  State<_ReportPage> createState() => _ReportPageState();
+}
+
+class _ReportPageState extends State<_ReportPage> {
+  Map<String, Object?> _diagnostics = const <String, Object?>{};
+  Timer? _poll;
+
+  @override
+  void initState() {
+    super.initState();
+    // Diagnostics are live counters, so they have to be polled rather than
+    // read once at startup.
+    _poll = Timer.periodic(const Duration(milliseconds: 500), (_) async {
+      final diagnostics = await FoldableDevice.instance.diagnostics();
+      if (mounted) setState(() => _diagnostics = diagnostics);
+    });
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Device report')),
+      body: FoldableBuilder(
+        builder: (context, state) => SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: SelectableText(_report(state)),
         ),
       ),
     );
@@ -37,7 +76,7 @@ class _ReportApp extends StatelessWidget {
     final buffer = StringBuffer()
       ..writeln('### foldable_runtime device report')
       ..writeln()
-      ..writeln('posture: ${state.posture.name}')
+      ..writeln('posture: ${state.posture.name} (${state.posture.coarse.name})')
       ..writeln('raw angle: ${state.hinge.rawAngle}')
       ..writeln('normalised angle: ${state.hinge.angle}')
       ..writeln('assumed range: ${state.hinge.range.name}')
@@ -51,20 +90,27 @@ class _ReportApp extends StatelessWidget {
     state.capabilities.raw.forEach((key, value) {
       buffer.writeln('  $key: $value');
     });
-    buffer.writeln();
-    buffer.writeln('diagnostics:');
-    FoldableDevice.instance.diagnostics.forEach((key, value) {
-      buffer.writeln('  $key: $value');
-    });
 
     buffer
       ..writeln()
-      ..writeln('Fold the device slowly through every position and paste the')
-      ..writeln('reading at closed, 90 degrees, and fully flat.')
+      ..writeln('diagnostics (live):');
+    if (_diagnostics.isEmpty) {
+      buffer.writeln('  reading...');
+    } else {
+      _diagnostics.forEach((key, value) {
+        buffer.writeln('  $key: $value');
+      });
+    }
+
+    buffer
       ..writeln()
-      ..writeln('If hingeEventCount barely moves while you fold, the sensor is')
-      ..writeln('reporting coarsely rather than continuously — say so in the')
-      ..writeln('issue, it is a quirk worth recording.');
+      ..writeln('Fold the device slowly through its whole range, then read')
+      ..writeln('hingeDistinctValues and hingeContinuous above.')
+      ..writeln()
+      ..writeln('A sweeping sensor passes a few dozen distinct values in one')
+      ..writeln('fold. One that only reports at detents stays in single')
+      ..writeln('figures no matter how slowly you move it — that is a')
+      ..writeln('hardware property worth recording, not a bug.');
     return buffer.toString();
   }
 }
