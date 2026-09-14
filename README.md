@@ -64,9 +64,14 @@ npm tarball only `react-native/android/`.
 
 ## Status
 
-**0.3.0 — Flutter and React Native, Android.** Validated on a physical Samsung
-Galaxy Z Flip 5 across five rounds of on-device testing; every bug that testing
-found is fixed and covered by a regression test. iOS (iPhone Duo) is next.
+**Android only, on both frameworks.** Validated on a physical Samsung Galaxy Z
+Flip 5 across five rounds of on-device testing; every bug that testing found is
+fixed and covered by a regression test.
+
+**iOS ships in 0.4, with the iPhone Duo** — Apple's Hinge API, device poses and
+Scene Accessories. Neither package declares iOS support until that is real: the
+platform badge is how you will find out it arrived. Both are safe to add to a
+multi-platform app today, where they report a rigid device and do nothing.
 
 See [PRD.md](PRD.md) for the roadmap and an honest critique of it, and
 [doc/devices.md](doc/devices.md) for what has actually been measured on real

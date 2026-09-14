@@ -1,8 +1,7 @@
 {
+  "//": "Used by `bob build` for the typescript target. It differs from tsconfig.json only in scope: that one also covers __tests__ so the editor and `npm run typecheck` see them, but emitting declarations for tests would ship them to npm. bob supplies outDir and the declaration flags itself.",
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "lib/typescript",
-    "emitDeclarationOnly": true,
     "types": []
   },
   "include": ["src"]

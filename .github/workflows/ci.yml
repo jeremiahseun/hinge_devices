@@ -133,6 +133,17 @@ jobs:
       - name: Test
         run: npm test
 
+      # The build is the part Metro never exercises: it resolves the
+      # `react-native` field straight to src/, so a broken `main`/`module`
+      # only surfaces for a consumer using require, Jest in a host app, or a
+      # bundler reading `main` — i.e. after publishing. It broke exactly that
+      # way once.
+      - name: Build
+        run: npm run prepare
+
+      - name: Verify every declared entry point exists
+        run: npm run check:entry-points
+
       - name: Verify the published tarball contents
         run: npm pack --dry-run
 

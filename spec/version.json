@@ -8,7 +8,7 @@
       "package": "hinge_devices",
       "ecosystem": "pub.dev",
       "manifest": "flutter/pubspec.yaml",
-      "patch": 0
+      "patch": 1
     },
     "react_native": {
       "package": "hinge_devices",
