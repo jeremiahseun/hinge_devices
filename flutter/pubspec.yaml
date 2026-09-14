@@ -1,6 +1,6 @@
 name: hinge_devices
 description: A unified posture, hinge and display model for foldable devices. Posture-first, capability-driven, and safe to add to any app.
-version: 0.3.0
+version: 0.3.1
 repository: https://github.com/jeremiahseun/hinge_devices
 issue_tracker: https://github.com/jeremiahseun/hinge_devices/issues
 documentation: https://github.com/jeremiahseun/hinge_devices#readme
@@ -33,20 +33,15 @@ dev_dependencies:
 flutter:
   plugin:
     platforms:
+      # Android only. The package still compiles and runs on every other
+      # platform — it reports a rigid device and emits nothing — but that is
+      # graceful degradation, not support, and pub.dev's platform badges are
+      # read as a claim of support.
+      #
+      # Declaring iOS here to widen discovery would mean an iPhone developer
+      # installs this expecting foldable support and gets a permanent
+      # isFoldable: false. It would also spend the signal early: when real
+      # iPhone Duo support lands in 0.4, the badge is how people find out.
       android:
         package: dev.jeremiahseun.hinge_devices
         pluginClass: HingeDevicesPlugin
-      # Dart-only implementations. These platforms report a rigid device, so
-      # adding this package to a multi-platform app is always safe. Declaring
-      # them is what stops pub.dev listing the package as Android-only, which
-      # would hide it from anyone whose app also targets iOS.
-      #
-      # iOS gains a real implementation in 0.4 (iPhone Duo).
-      ios:
-        dartPluginClass: HingeDevicesDartPlugin
-      macos:
-        dartPluginClass: HingeDevicesDartPlugin
-      windows:
-        dartPluginClass: HingeDevicesDartPlugin
-      linux:
-        dartPluginClass: HingeDevicesDartPlugin

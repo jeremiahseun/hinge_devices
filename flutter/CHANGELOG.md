@@ -1,3 +1,34 @@
+## 0.3.1
+
+**Fixed**
+
+- `flutter analyze` reported `invalid_use_of_visible_for_testing_member` on
+  `lib/src/testing/foldable_test_kit.dart`, costing 20 pub points.
+  `setPlatformForTesting` was annotated `@visibleForTesting`, which means
+  "reachable only from `test/`" — but this package ships `lib/testing.dart`,
+  which necessarily calls it from `lib/`. The annotation is simply wrong for a
+  package with a testing library: these are public API that consumers call
+  from their own tests.
+
+  The fix landed before 0.3.0 was published but did not make it into the
+  published archive. This release carries it.
+
+**Changed**
+
+- Declares **Android only**. 0.3.0 also declared iOS, macOS, Windows and
+  Linux through a no-op Dart registrant, on the reasoning that it widened
+  discovery and the package is genuinely safe to add anywhere. That was the
+  wrong trade: pub.dev's platform badges are read as a claim of support, so an
+  iPhone developer would have installed this expecting foldable support and
+  received a permanent `isFoldable: false`. It also spent the signal early —
+  the badge is how people will learn that iPhone Duo support has arrived in
+  0.4.
+
+  Nothing about the runtime changed. The package still compiles and runs on
+  every platform, reporting a rigid device and emitting nothing, and the
+  README says so explicitly. The `HingeDevicesDartPlugin` registrant that
+  existed only to satisfy those declarations is removed.
+
 ## 0.3.0
 
 First public release, as `hinge_devices`.

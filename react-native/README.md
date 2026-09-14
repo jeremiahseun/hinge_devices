@@ -114,7 +114,8 @@ See [`doc/devices.md`](../doc/devices.md).
 ## Develop without a foldable
 
 ```tsx
-import { setTestPosture, resetTestDevice, FoldPosture } from 'hinge_devices/src/testing';
+import { setTestPosture, resetTestDevice } from 'hinge_devices/testing';
+import { FoldPosture } from 'hinge_devices';
 
 setTestPosture(FoldPosture.Tabletop);   // every posture, one call away
 resetTestDevice();                      // back to live

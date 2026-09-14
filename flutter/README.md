@@ -10,9 +10,11 @@ A unified posture, hinge and display model for foldable devices.
 Posture-first, capability-driven, and safe to add to any app — on a device that
 doesn't fold, this package reports a rigid device and does nothing else.
 
-> **Status: 0.3 — Flutter and React Native, Android.** Validated on a physical
-> Galaxy Z Flip 5 across five rounds of on-device testing. iOS (iPhone Duo) is
-> next. See [PRD.md](../PRD.md) for the roadmap and its critique.
+> **Status: 0.3 — Android only.** Validated on a physical Galaxy Z Flip 5
+> across five rounds of on-device testing. **iOS ships in 0.4 with iPhone Duo
+> support.** Safe to add to a multi-platform app today: everywhere else it
+> reports a rigid device and does nothing. See [PRD.md](../PRD.md) for the
+> roadmap and its critique.
 >
 > **React Native users:** [`../react-native/`](../react-native/) — same name on npm,
 > same model, same version.
@@ -225,29 +227,27 @@ Own a foldable we haven't got an entry for? Run `example/tool/report_device.dart
 
 ## Platform support
 
+**Android only today.** iOS support ships in 0.4, alongside the iPhone Duo.
+
 | Platform | Posture | Angle | Notes |
 |---|---|---|---|
 | Android 11+ | ✅ | ✅ | `FoldingFeature` + `TYPE_HINGE_ANGLE`; cover display detected |
 | Android 7–10 | ✅ | ❌ | folding feature only |
-| iOS | — | — | reports rigid; iPhone Duo support in v0.3 |
-| Web, desktop | — | — | reports rigid; safe to include |
+| iOS | ⏳ | ⏳ | **coming in 0.4** — Apple's Hinge API, device poses and Scene Accessories, on the iPhone Duo |
+| Web, desktop | — | — | not planned; posture has no meaning there |
 
-## One model, two frameworks
+### Safe to add to a multi-platform app today
 
-`hinge_devices` ships to pub.dev for Flutter and npm for React Native. They
-are not ports of each other — they are two implementations of one
-specification, and the specification is executable:
+On any platform without a native implementation the package reports a rigid
+device and emits nothing. No platform channel is touched, nothing throws, and
+`capabilities.isFoldable` is `false`. So you can depend on it now and your iOS
+or desktop build is unaffected.
 
-- [`spec/posture_vectors.json`](../spec/posture_vectors.json) holds the
-  conformance vectors. **Both implementations run them in CI.** A posture rule
-  changed in one language and not the other fails the build, rather than
-  silently shipping two products that disagree about what `tabletop` means.
-- [`core-android/`](../core-android/) holds the Android hardware code — the
-  hinge sensor, the window-layout observer, the display source. It is vendored
-  into both packages by `dart run tool/sync_shared.dart`, and CI fails on
-  drift. Every bug found on real hardware is fixed once, for both frameworks.
-- [`spec/version.json`](../spec/version.json) keeps major and minor in step
-  across both ecosystems.
+That is **graceful degradation, not support**, which is why this package
+declares only Android on pub.dev. Listing iOS to widen discovery would tell an
+iPhone developer they were getting foldable support and hand them a permanent
+`isFoldable: false` — and it would spend the signal early, since the platform
+badge is how people will find out when Duo support actually lands.
 
 ## Design notes
 

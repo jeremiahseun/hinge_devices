@@ -17,7 +17,6 @@ export 'src/model/posture_resolver.dart'
     show FoldingFeatureState, PostureResolver;
 export 'src/model/posture_thresholds.dart';
 export 'src/model/quirks.dart';
-export 'src/platform/dart_plugin_registrant.dart';
 export 'src/platform/hinge_devices_platform.dart';
 export 'src/platform/unsupported_hinge_devices.dart';
 export 'src/widgets/foldable_builder.dart';
