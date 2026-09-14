@@ -1,0 +1,36 @@
+# .pubignore REPLACES .gitignore for publishing — it does not add to it. So
+# every build artefact has to be listed here as well, or a 13 MB archive of
+# local build output ships to pub.dev.
+
+# Build output
+build/
+.dart_tool/
+**/build/
+**/.dart_tool/
+
+# Local tooling config
+android/.gradle/
+android/local.properties
+android/gradlew
+android/gradlew.bat
+android/gradle/
+example/android/local.properties
+example/android/.gradle/
+example/ios/Pods/
+.idea/
+.vscode/
+*.iml
+
+# Development-only documents and tooling. Useful in the repo, noise in the
+# archive — the published package carries README, CHANGELOG, LICENSE, doc/
+# and bin/.
+#
+# bin/ ships on purpose: it is how a consuming app runs
+# `dart run hinge_devices:check_manifest` against its own manifest.
+# tool/ does not: check_versions.dart maintains this repo, not anyone's app.
+.github/
+spec/
+tool/
+PRD.md
+VERSIONING.md
+CONTRIBUTING.md

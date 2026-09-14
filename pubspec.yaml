@@ -1,0 +1,52 @@
+name: hinge_devices
+description: A unified posture, hinge and display model for foldable devices. Posture-first, capability-driven, and safe to add to any app.
+version: 0.3.0
+repository: https://github.com/jeremiahseun/hinge_devices
+issue_tracker: https://github.com/jeremiahseun/hinge_devices/issues
+documentation: https://github.com/jeremiahseun/hinge_devices#readme
+
+# Max five, and they are how people find the package by browsing rather than
+# by name. "foldable" is the obvious one; the rest cover what people actually
+# search for when they hit this problem.
+topics:
+  - foldable
+  - hinge
+  - adaptive-ui
+  - dual-screen
+  - responsive
+
+environment:
+  sdk: ^3.5.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # lib/testing.dart ships the posture test kit, so flutter_test is a real
+  # dependency rather than a dev one.
+  flutter_test:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: dev.jeremiahseun.hinge_devices
+        pluginClass: HingeDevicesPlugin
+      # Dart-only implementations. These platforms report a rigid device, so
+      # adding this package to a multi-platform app is always safe. Declaring
+      # them is what stops pub.dev listing the package as Android-only, which
+      # would hide it from anyone whose app also targets iOS.
+      #
+      # iOS gains a real implementation in 0.4 (iPhone Duo).
+      ios:
+        dartPluginClass: HingeDevicesDartPlugin
+      macos:
+        dartPluginClass: HingeDevicesDartPlugin
+      windows:
+        dartPluginClass: HingeDevicesDartPlugin
+      linux:
+        dartPluginClass: HingeDevicesDartPlugin

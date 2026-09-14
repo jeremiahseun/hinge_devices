@@ -1,0 +1,20 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # A public API without docs is a bug in a package whose whole value is its
+    # API, so this is an error rather than a hint.
+    public_member_api_docs: error
+
+linter:
+  rules:
+    public_member_api_docs: true
+    prefer_const_constructors: true
+    prefer_final_locals: true
+    unawaited_futures: true
+    # Note: require_trailing_commas is deliberately absent. The Dart 3.7+
+    # formatter decides comma placement, and the lint disagrees with it, so
+    # enabling both means `dart format` and `dart analyze` can never both pass.
