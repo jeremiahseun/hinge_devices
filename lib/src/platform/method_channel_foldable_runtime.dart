@@ -55,6 +55,10 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
   FoldableCapabilities _capabilities = FoldableCapabilities.none;
   HingeNormalizer _normalizer = const HingeNormalizer(HingeQuirk.assumed);
 
+  // Learned once, kept for the session. See _learnOuterDisplay.
+  bool _learnedOuterDisplay = false;
+  double _largestWindowArea = 0;
+
   @override
   Stream<FoldableState> get states {
     return _states ??= eventChannel
@@ -109,6 +113,18 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
   }
 
   @override
+  Future<Map<String, Object?>> diagnostics() async {
+    final reply =
+        await methodChannel.invokeMethod<Map<Object?, Object?>>('diagnostics');
+    return <String, Object?>{
+      for (final entry in reply?.entries ?? const <MapEntry<Object?, Object?>>[])
+        entry.key.toString(): entry.value,
+      'learnedOuterDisplay': _learnedOuterDisplay,
+      'largestWindowArea': _largestWindowArea,
+    };
+  }
+
+  @override
   Future<void> setAngleUpdatesEnabled(bool enabled) {
     return methodChannel.invokeMethod<void>(
       'setAngleUpdatesEnabled',
@@ -126,11 +142,13 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
     final signals = _decodeSignals(map);
 
     final angle = _normalizer.normalize(signals.rawAngle);
+    final capabilities = _learnOuterDisplay(angle, signals.display.logicalSize);
+
     final posture = _resolver.resolve(
       featureState: signals.featureState,
       featureOrientation: signals.featureOrientation,
       angle: angle,
-      hasOuterDisplay: _capabilities.outerDisplay,
+      hasOuterDisplay: capabilities.outerDisplay,
     );
 
     return FoldableState(
@@ -142,9 +160,70 @@ class MethodChannelFoldableRuntime extends FoldableRuntimePlatform {
         status: _resolver.statusFor(angle),
         orientation: signals.featureOrientation,
       ),
-      display: signals.display,
-      capabilities: _capabilities,
+      display: _resolveDisplay(signals.display, angle),
+      capabilities: capabilities,
       timestamp: DateTime.now(),
+    );
+  }
+
+  /// Works out whether this device has an outer display, by deduction rather
+  /// than by asking.
+  ///
+  /// Android exposes no public API for "is this the cover screen", and on
+  /// Flip-class hardware the two panels are frequently the same logical
+  /// display that resizes, so enumeration cannot see it either. But a device
+  /// that is shut and still drawing our UI must be drawing it somewhere — and
+  /// the only somewhere is an outer panel. That is a deduction from a real
+  /// signal, not a heuristic, and unlike a size comparison it is correct on
+  /// the very first launch.
+  ///
+  /// Latched for the session: a device does not grow or lose a panel.
+  FoldableCapabilities _learnOuterDisplay(double? angle, Size? window) {
+    if (window != null) {
+      final area = window.width * window.height;
+      if (area > _largestWindowArea) _largestWindowArea = area;
+    }
+
+    final isShut =
+        angle != null && angle <= _resolver.thresholds.closedAtOrBelow;
+    if (isShut) _learnedOuterDisplay = true;
+
+    return _learnedOuterDisplay && !_capabilities.outerDisplay
+        ? _capabilities.copyWith(outerDisplay: true)
+        : _capabilities;
+  }
+
+  /// Fills in [ActiveDisplay] when the platform could not name it.
+  DisplayInfo _resolveDisplay(DisplayInfo display, double? angle) {
+    if (display.active != ActiveDisplay.unknown) return display;
+
+    final window = display.logicalSize;
+    if (window == null) return display;
+
+    final isShut =
+        angle != null && angle <= _resolver.thresholds.closedAtOrBelow;
+    if (!isShut) {
+      // Only claim the inner panel once a smaller one has been seen too;
+      // otherwise an ordinary phone would report itself as a foldable's
+      // inner display.
+      return _learnedOuterDisplay
+          ? DisplayInfo(
+              active: ActiveDisplay.inner,
+              features: display.features,
+              logicalSize: window,
+            )
+          : display;
+    }
+
+    final area = window.width * window.height;
+    return DisplayInfo(
+      // A Flex Window is a fraction of the inner panel; a Fold-class outer
+      // screen is a whole phone screen in its own right.
+      active: area * 2 < _largestWindowArea
+          ? ActiveDisplay.cover
+          : ActiveDisplay.outer,
+      features: display.features,
+      logicalSize: window,
     );
   }
 

@@ -49,6 +49,28 @@ internal class HingeSensorSource(
     var eventCount: Int = 0
         private set
 
+    /**
+     * Every distinct angle this device has ever reported, capped.
+     *
+     * The point of the cap is diagnostic, not memory: a sensor that sweeps
+     * continuously blows past it in one fold, and one that only reports at
+     * detents never will. That distinction decides whether an angle-driven
+     * effect is worth building on a given device, and no vendor documents it.
+     */
+    private val distinctAngles = sortedSetOf<Float>()
+
+    /** Snapshot of what this sensor has actually reported. */
+    fun stats(): Map<String, Any?> = mapOf(
+        "hingeEventCount" to eventCount,
+        "hingeDistinctValues" to distinctAngles.size,
+        "hingeValuesSeen" to distinctAngles.take(DISTINCT_CAP).map { it.toDouble() },
+        "hingeMin" to distinctAngles.firstOrNull()?.toDouble(),
+        "hingeMax" to distinctAngles.lastOrNull()?.toDouble(),
+        "hingeContinuous" to (distinctAngles.size > CONTINUOUS_THRESHOLD),
+        "hingeRegistered" to registered,
+        "hingeFastRate" to fastRate,
+    )
+
     private var registered = false
     private var fastRate = false
 
@@ -81,7 +103,18 @@ internal class HingeSensorSource(
         val value = event?.values?.firstOrNull() ?: return
         lastAngle = value
         eventCount++
+        if (distinctAngles.size < DISTINCT_CAP) distinctAngles.add(value)
         onAngle(value)
+    }
+
+    private companion object {
+        const val DISTINCT_CAP = 64
+
+        /**
+         * More distinct values than a device could plausibly reach by detents
+         * alone, so crossing it means the sensor really is sweeping.
+         */
+        const val CONTINUOUS_THRESHOLD = 12
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit

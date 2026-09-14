@@ -55,6 +55,33 @@ class FoldableCapabilities {
   /// the package has no typed field for.
   final Map<String, bool> raw;
 
+  /// Returns a copy with the given fields replaced.
+  FoldableCapabilities copyWith({
+    bool? isFoldable,
+    bool? hingeAngleSensor,
+    bool? foldingFeature,
+    bool? outerDisplay,
+    bool? sceneAccessory,
+    bool? rearDisplayTransfer,
+    bool? dualConcurrent,
+  }) {
+    return FoldableCapabilities(
+      isFoldable: isFoldable ?? this.isFoldable,
+      hingeAngleSensor: hingeAngleSensor ?? this.hingeAngleSensor,
+      foldingFeature: foldingFeature ?? this.foldingFeature,
+      outerDisplay: outerDisplay ?? this.outerDisplay,
+      sceneAccessory: sceneAccessory ?? this.sceneAccessory,
+      rearDisplayTransfer: rearDisplayTransfer ?? this.rearDisplayTransfer,
+      dualConcurrent: dualConcurrent ?? this.dualConcurrent,
+      specVersion: specVersion,
+      raw: <String, bool>{
+        ...raw,
+        if (outerDisplay != null) 'outerDisplay': outerDisplay,
+        if (isFoldable != null) 'isFoldable': isFoldable,
+      },
+    );
+  }
+
   /// Reads a capability by name, falling back to [raw] for unknown keys.
   bool operator [](String key) => switch (key) {
         'isFoldable' => isFoldable,

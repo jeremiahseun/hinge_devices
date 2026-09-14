@@ -112,6 +112,9 @@ class FoldableRuntimePlugin :
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "capabilities" -> result.success(capabilities())
+            // Read live rather than from the cached capability snapshot: the
+            // whole point is what the sensor has done since the app started.
+            "diagnostics" -> result.success(diagnostics())
             "setAngleUpdatesEnabled" -> {
                 angleUpdatesEnabled = call.argument<Boolean>("enabled") ?: false
                 // Never stops the sensor: posture still needs it to tell a
@@ -137,8 +140,19 @@ class FoldableRuntimePlugin :
             "specVersion" to SPEC_VERSION,
             "manufacturer" to Build.MANUFACTURER,
             "model" to Build.MODEL,
-            "hingeEventCount" to (hingeSensor?.eventCount ?: 0),
         )
+    }
+
+    private fun diagnostics(): Map<String, Any?> {
+        return buildMap {
+            put("manufacturer", Build.MANUFACTURER)
+            put("model", Build.MODEL)
+            put("sdkInt", Build.VERSION.SDK_INT)
+            put("activeDisplay", cachedActiveDisplay())
+            put("windowWidth", windowWidth)
+            put("windowHeight", windowHeight)
+            putAll(hingeSensor?.stats() ?: emptyMap())
+        }
     }
 
     // --- EventChannel.StreamHandler ---------------------------------------

@@ -1,3 +1,37 @@
+## 0.2.2
+
+**Fixed**
+
+- `diagnostics` reported a constant. Live counters were being read from the
+  capability snapshot, which is cached on first call, so `hingeEventCount` was
+  always the value from before any sensor event had fired — it read `0`
+  forever, including on a device that was clearly delivering angles.
+  Diagnostics are now a live platform call: `FoldableDevice.diagnostics()`.
+- A Z Flip 5 running on its Flex Window reported `outerDisplay: false` and
+  `activeDisplay: unknown`, so it resolved to `closed` rather than
+  `flipClosed`. Both panels are the same logical display on that hardware, so
+  no amount of display enumeration can see the cover screen. Replaced with a
+  deduction: a device that is shut and still drawing must be drawing on an
+  outer panel. Correct on the first launch, and it uses the same configurable
+  threshold that decides `closed`, so the two can never disagree.
+
+**Added**
+
+- Live hinge statistics: `hingeEventCount`, `hingeDistinctValues`,
+  `hingeValuesSeen`, `hingeMin`, `hingeMax`, `hingeContinuous`. These answer a
+  question no vendor documents — whether a given hinge sensor sweeps
+  continuously or only reports at detents, which decides whether angle-driven
+  effects are viable on that device.
+- `FoldableCapabilities.copyWith`, keeping typed and raw reads in agreement.
+- `doc/devices.md`, recording measured behaviour per device.
+- The report tool polls diagnostics live instead of printing a startup
+  snapshot.
+
+**Breaking**
+
+- `FoldableDevice.diagnostics` is now a method, not a getter. It could not be
+  correct as a getter.
+
 ## 0.2.1
 
 Fixes two regressions found on a physical Galaxy Z Flip, plus the API flaw that
