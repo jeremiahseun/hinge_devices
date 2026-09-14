@@ -1,5 +1,12 @@
 buildscript {
-    ext.kotlin_version = project.properties['HingeDevices_kotlinVersion'] ?: '1.9.24'
+    // The consuming app's Kotlin version wins — React Native apps set
+    // `kotlinVersion` in gradle.properties. The pin is only for standalone
+    // builds, kept in step with the Flutter plugin so the two vendored copies
+    // of core-android compile against the same toolchain.
+    ext.kotlin_version =
+        project.properties['HingeDevices_kotlinVersion']
+            ?: project.properties['kotlinVersion']
+            ?: '2.2.20'
     repositories {
         google()
         mavenCentral()
@@ -53,7 +60,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-android'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation 'androidx.window:window:1.3.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
 }
