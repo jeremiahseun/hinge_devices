@@ -12,7 +12,7 @@ far were found by running the app on one real Galaxy Z Flip.
 ```bash
 git clone https://github.com/jeremiahseun/hinge_devices
 cd hinge_devices
-flutter run -t tool/report_device.dart
+cd example && flutter run -t tool/report_device.dart
 ```
 
 Fold the device slowly through its whole range with the report open, then open

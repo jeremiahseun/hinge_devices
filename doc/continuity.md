@@ -43,13 +43,13 @@ on the new display.
 ## Check your manifest
 
 ```bash
-dart run foldable_runtime:check_manifest android/app/src/main/AndroidManifest.xml
+dart run foldable_runtime:check_manifest
 ```
 
 Or from this repo:
 
 ```bash
-dart run tool/check_manifest.dart path/to/AndroidManifest.xml
+dart run foldable_runtime:check_manifest path/to/AndroidManifest.xml
 ```
 
 ## What still gets destroyed

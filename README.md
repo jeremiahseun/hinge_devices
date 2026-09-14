@@ -200,7 +200,7 @@ Keeping state when the device opens is a manifest concern, not an API — there
 is no continuity call to make. Check yours:
 
 ```bash
-dart run tool/check_manifest.dart android/app/src/main/AndroidManifest.xml
+dart run foldable_runtime:check_manifest
 ```
 
 See [doc/continuity.md](doc/continuity.md).
@@ -218,8 +218,7 @@ FoldableQuirks.register(
 );
 ```
 
-Own a foldable we haven't got an entry for? Run `flutter run -t
-tool/report_device.dart` and paste the output into an issue.
+Own a foldable we haven't got an entry for? Run `example/tool/report_device.dart` and paste the output into an issue.
 
 ## Platform support
 
@@ -276,7 +275,7 @@ The most valuable contribution is **a device report, not code**. Four of the
 bugs fixed so far were found by running the example on one real Galaxy Z Flip.
 
 ```bash
-flutter run -t tool/report_device.dart
+cd example && flutter run -t tool/report_device.dart
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md).

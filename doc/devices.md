@@ -2,7 +2,7 @@
 
 Vendors document almost nothing about what their hinge sensors actually
 report. This file records what we have measured on real hardware. Entries come
-from `flutter run -t tool/report_device.dart`.
+from `cd example && flutter run -t tool/report_device.dart`.
 
 If you own a foldable that is not listed, running that tool and opening an
 issue is the single most useful contribution you can make to this package.
@@ -71,7 +71,7 @@ diagnostic that is usually right. This one was reporting a constant.
 ## Contributing an entry
 
 ```bash
-flutter run -t tool/report_device.dart
+cd example && flutter run -t tool/report_device.dart
 ```
 
 Fold slowly through the whole range with the report open, then paste the

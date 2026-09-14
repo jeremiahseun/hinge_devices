@@ -1,7 +1,11 @@
 // Checks an Android manifest for the configuration foldable app continuity
 // needs.
 //
-//   dart run tool/check_manifest.dart android/app/src/main/AndroidManifest.xml
+// Shipped as an executable of the package, so apps that depend on
+// foldable_runtime can lint their own manifest:
+//
+//   dart run foldable_runtime:check_manifest
+//   dart run foldable_runtime:check_manifest path/to/AndroidManifest.xml
 //
 // Continuity is configuration, not an API — see doc/continuity.md. This is a
 // lint, not a guarantee: it reads the manifest as text and reports what is
@@ -75,6 +79,8 @@ void main(List<String> args) {
   for (final finding in findings) {
     stdout.writeln('• $finding\n');
   }
-  stdout.writeln('See doc/continuity.md for the full explanation.');
+  stdout.writeln(
+    'See https://github.com/jeremiahseun/hinge_devices/blob/main/doc/continuity.md',
+  );
   exitCode = 1;
 }

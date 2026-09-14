@@ -43,7 +43,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('foldable_runtime'),
+        title: const Text('Foldable Runtime'),
         actions: [
           IconButton(
             tooltip: 'Posture simulator',

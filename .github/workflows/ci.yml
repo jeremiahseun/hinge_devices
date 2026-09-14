@@ -26,7 +26,7 @@ jobs:
         run: flutter pub get
 
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed lib test tool example/lib
+        run: dart format --output=none --set-exit-if-changed lib bin test tool example/lib example/tool
 
       - name: Analyze
         run: flutter analyze --fatal-infos --fatal-warnings
@@ -38,7 +38,7 @@ jobs:
         run: dart run tool/check_versions.dart
 
       - name: Lint the example app's manifest for foldable continuity
-        run: dart run tool/check_manifest.dart example/android/app/src/main/AndroidManifest.xml
+        run: dart run bin/check_manifest.dart example/android/app/src/main/AndroidManifest.xml
 
       - name: Publish dry run
         run: flutter pub publish --dry-run

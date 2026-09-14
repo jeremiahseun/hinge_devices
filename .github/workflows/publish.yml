@@ -25,7 +25,7 @@ jobs:
 
       # Re-run the gates rather than trusting that CI passed on the commit:
       # a tag can point anywhere.
-      - run: dart format --output=none --set-exit-if-changed lib test tool example/lib
+      - run: dart format --output=none --set-exit-if-changed lib bin test tool example/lib example/tool
       - run: flutter analyze --fatal-infos --fatal-warnings
       - run: flutter test
       - run: dart run tool/check_versions.dart

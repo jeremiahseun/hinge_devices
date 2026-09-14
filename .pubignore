@@ -21,10 +21,16 @@ example/ios/Pods/
 .vscode/
 *.iml
 
-# Development-only documents. Useful in the repo, noise in the archive — the
-# published package carries README, CHANGELOG, LICENSE and doc/.
+# Development-only documents and tooling. Useful in the repo, noise in the
+# archive — the published package carries README, CHANGELOG, LICENSE, doc/
+# and bin/.
+#
+# bin/ ships on purpose: it is how a consuming app runs
+# `dart run foldable_runtime:check_manifest` against its own manifest.
+# tool/ does not: check_versions.dart maintains this repo, not anyone's app.
 .github/
 spec/
+tool/
 PRD.md
 VERSIONING.md
 CONTRIBUTING.md
